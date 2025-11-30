@@ -1,0 +1,28 @@
+# robots.txt for Taruvae Naturals
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private pages
+Disallow: /admin/
+Disallow: /api/
+Disallow: /account/
+Disallow: /orders/
+Disallow: /checkout/
+Disallow: /cart/
+
+# Allow important pages
+Allow: /products
+Allow: /contact
+Allow: /faq
+Allow: /privacy
+Allow: /terms
+Allow: /shipping
+Allow: /cancellation-refund
+
+# Sitemap
+Sitemap: https://taruvae.com/sitemap.xml
+
+# Crawl-delay (optional, adjust as needed)
+Crawl-delay: 1
+
