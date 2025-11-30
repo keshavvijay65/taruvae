@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 
 export default function Features() {
     const features = [
@@ -29,6 +30,8 @@ export default function Features() {
             icon: '👨‍🌾',
         },
     ];
+
+    const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
 
     return (
         <section className="py-20 md:py-24 lg:py-28 bg-gradient-to-b from-white via-[#FDF8F1] to-white relative overflow-hidden w-full max-w-full">
@@ -76,14 +79,23 @@ export default function Features() {
                                     
                                     {/* Icon Circle */}
                                     <div className="relative w-full h-full rounded-full bg-gradient-to-br from-[#F5F1EB] via-white to-[#F5F1EB] p-3 flex items-center justify-center shadow-inner border-2 border-[#D4AF37]/20 group-hover:border-[#D4AF37] transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                        <div className="relative w-full h-full rounded-full bg-white flex items-center justify-center">
-                                            <Image
-                                                src={feature.image}
-                                                alt={feature.title}
-                                                width={100}
-                                                height={100}
-                                                className="object-contain w-full h-full transition-all duration-500 group-hover:scale-110"
-                                            />
+                                        <div className="relative w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                                            {imageErrors[index] ? (
+                                                // Fallback: Show emoji icon if image fails to load
+                                                <div className="text-4xl sm:text-5xl md:text-6xl">
+                                                    {feature.icon}
+                                                </div>
+                                            ) : (
+                                                <img
+                                                    src={feature.image}
+                                                    alt={feature.title}
+                                                    className="object-contain w-full h-full transition-all duration-500 group-hover:scale-110"
+                                                    onError={() => {
+                                                        setImageErrors(prev => ({ ...prev, [index]: true }));
+                                                    }}
+                                                    style={{ maxWidth: '100%', maxHeight: '100%', display: 'block' }}
+                                                />
+                                            )}
                                         </div>
                                     </div>
 

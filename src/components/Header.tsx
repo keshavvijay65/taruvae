@@ -14,6 +14,7 @@ export default function Header() {
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [isMobileBlogsOpen, setIsMobileBlogsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isScrolled, setIsScrolled] = useState(false);
     const { getTotalItems } = useCart();
     const { getWishlistCount } = useWishlist();
     const { isAuthenticated, user } = useAuth();
@@ -21,6 +22,15 @@ export default function Header() {
     const wishlistCount = getWishlistCount();
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    // Handle scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 10);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const productNavLinks = [
         { label: 'All Products', filter: 'all' },
@@ -108,8 +118,12 @@ export default function Header() {
     );
 
     return (
-        <header className="sticky top-0 z-50 bg-white/98 backdrop-blur-sm border-b border-gray-200 w-full">
-            <div className="w-full max-w-full overflow-x-hidden">
+        <header className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${
+            isScrolled 
+                ? 'bg-white/99 backdrop-blur-md shadow-md border-b border-gray-200' 
+                : 'bg-white/98 backdrop-blur-sm border-b border-gray-200'
+        }`}>
+            <div className="w-full max-w-full">
                 <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-10 max-w-7xl w-full">
                     <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-3">
                         {/* Left Side - Logo */}

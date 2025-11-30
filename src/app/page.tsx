@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
     return (
-        <main className="min-h-screen rich-gradient w-full overflow-x-hidden">
+        <main className="min-h-screen rich-gradient w-full">
             <Suspense fallback={<div className="h-20 bg-white"></div>}>
                 <Header />
             </Suspense>
