@@ -240,7 +240,7 @@ function OrderTrackingContent() {
                 </div>
             )}
 
-            <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl py-8 md:py-12">
+            <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl pt-20 sm:pt-24 pb-8 md:pb-12">
                 {/* Back Button */}
                 <Link
                     href="/orders"

@@ -5,17 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { getAllOrdersFromFirebase, subscribeToOrders, Order } from '@/lib/firebaseOrders';
+
+// Order interface is imported from firebaseOrders
 
 // Skip static generation for this page (uses Header with useSearchParams)
 export const dynamic = 'force-dynamic';
-
-interface Order {
-    orderId: string;
-    total: number;
-    orderDate: string;
-    status?: string;
-    items: Array<{ quantity: number; price: number }>;
-}
 
 export default function AdminAnalyticsPage() {
     const router = useRouter();
@@ -29,15 +24,44 @@ export default function AdminAnalyticsPage() {
         if (auth === 'true') {
             setIsAuthenticated(true);
             loadOrders();
+            // Subscribe to real-time updates
+            try {
+                const unsubscribe = subscribeToOrders((firebaseOrders) => {
+                    console.log('Real-time analytics update:', firebaseOrders?.length || 0);
+                    setOrders(firebaseOrders || []);
+                });
+                return () => {
+                    if (unsubscribe && typeof unsubscribe === 'function') {
+                        unsubscribe();
+                    }
+                };
+            } catch (error) {
+                console.error('Error setting up real-time subscription:', error);
+            }
         } else {
             router.push('/admin/login');
         }
         setLoading(false);
     }, [router]);
 
-    const loadOrders = () => {
-        const localOrders: Order[] = JSON.parse(localStorage.getItem('taruvae-orders') || '[]');
-        setOrders(localOrders);
+    const loadOrders = async () => {
+        try {
+            // Load from Firebase first
+            const firebaseOrders = await getAllOrdersFromFirebase();
+            console.log('Loaded orders from Firebase:', firebaseOrders.length);
+            setOrders(firebaseOrders || []);
+        } catch (error) {
+            console.error('Error loading orders from Firebase:', error);
+            // Fallback to localStorage
+            try {
+                const localOrders: Order[] = JSON.parse(localStorage.getItem('taruvae-orders') || '[]');
+                console.log('Loaded orders from localStorage:', localOrders.length);
+                setOrders(localOrders || []);
+            } catch (localError) {
+                console.error('Error loading from localStorage:', localError);
+                setOrders([]);
+            }
+        }
     };
 
     const getFilteredOrders = () => {
@@ -101,7 +125,7 @@ export default function AdminAnalyticsPage() {
             <Suspense fallback={<div className="h-20 bg-white"></div>}>
                 <Header />
             </Suspense>
-            <div className="py-8 md:py-12">
+            <div className="pt-20 sm:pt-24 pb-8 md:pb-12">
                 <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl">
                     <div className="flex items-center justify-between mb-8">
                         <div>

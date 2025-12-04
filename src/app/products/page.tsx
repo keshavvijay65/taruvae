@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getAllProductsFromFirebase, subscribeToProducts } from '@/lib/firebaseProducts';
+import { getAllProductsFromFirebase, subscribeToProducts, getAllCategoriesFromFirebase, subscribeToCategories, Category } from '@/lib/firebaseProducts';
 
 // Function to get all default products (same as admin panel)
 const getAllDefaultProducts = (): Product[] => {
@@ -26,16 +26,16 @@ const getAllDefaultProducts = (): Product[] => {
         { id: 8, name: 'Cold Pressed Mustard Oil', price: 80, size: '100 ml', image: '/images/products/mustard oil.jpg', rating: 4.6, reviews: 52, inStock: true, category: 'oil' },
         
         // Cold Pressed Sunflower Oil
-        { id: 9, name: 'Cold Pressed Sunflower Oil', price: 450, size: '1000 ml', image: '/images/products/sunflower-oil.jpg', rating: 4.4, reviews: 167, inStock: true, category: 'oil' },
-        { id: 10, name: 'Cold Pressed Sunflower Oil', price: 260, size: '500 ml', image: '/images/products/sunflower-oil.jpg', rating: 4.4, reviews: 134, inStock: true, category: 'oil' },
-        { id: 11, name: 'Cold Pressed Sunflower Oil', price: 150, size: '250 ml', image: '/images/products/sunflower-oil.jpg', rating: 4.4, reviews: 98, inStock: true, category: 'oil' },
-        { id: 12, name: 'Cold Pressed Sunflower Oil', price: 80, size: '100 ml', image: '/images/products/sunflower-oil.jpg', rating: 4.4, reviews: 61, inStock: true, category: 'oil' },
+        { id: 9, name: 'Cold Pressed Sunflower Oil', price: 450, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 167, inStock: true, category: 'oil' },
+        { id: 10, name: 'Cold Pressed Sunflower Oil', price: 260, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 134, inStock: true, category: 'oil' },
+        { id: 11, name: 'Cold Pressed Sunflower Oil', price: 150, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 98, inStock: true, category: 'oil' },
+        { id: 12, name: 'Cold Pressed Sunflower Oil', price: 80, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 61, inStock: true, category: 'oil' },
         
         // Cold Pressed Coconut Oil
-        { id: 13, name: 'Cold Pressed Coconut Oil', price: 590, size: '1000 ml', image: '/images/products/coconut-oil.jpg', rating: 4.6, reviews: 189, inStock: true, category: 'oil' },
-        { id: 14, name: 'Cold Pressed Coconut Oil', price: 320, size: '500 ml', image: '/images/products/coconut-oil.jpg', rating: 4.6, reviews: 156, inStock: true, category: 'oil' },
-        { id: 15, name: 'Cold Pressed Coconut Oil', price: 180, size: '250 ml', image: '/images/products/coconut-oil.jpg', rating: 4.6, reviews: 123, inStock: true, category: 'oil' },
-        { id: 16, name: 'Cold Pressed Coconut Oil', price: 90, size: '100 ml', image: '/images/products/coconut-oil.jpg', rating: 4.6, reviews: 87, inStock: true, category: 'oil' },
+        { id: 13, name: 'Cold Pressed Coconut Oil', price: 590, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 189, inStock: true, category: 'oil' },
+        { id: 14, name: 'Cold Pressed Coconut Oil', price: 320, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 156, inStock: true, category: 'oil' },
+        { id: 15, name: 'Cold Pressed Coconut Oil', price: 180, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 123, inStock: true, category: 'oil' },
+        { id: 16, name: 'Cold Pressed Coconut Oil', price: 90, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 87, inStock: true, category: 'oil' },
         
         // Cold Pressed Sesame Oil
         { id: 17, name: 'Cold Pressed Sesame Oil', price: 510, size: '1000 ml', image: '/images/products/seasame oil.jpg', rating: 4.7, reviews: 178, inStock: true, category: 'oil' },
@@ -44,57 +44,57 @@ const getAllDefaultProducts = (): Product[] => {
         { id: 20, name: 'Cold Pressed Sesame Oil', price: 85, size: '100 ml', image: '/images/products/seasame oil.jpg', rating: 4.7, reviews: 78, inStock: true, category: 'oil' },
         
         // Virgin Coconut Oil
-        { id: 21, name: 'Virgin Coconut Oil', price: 1290, size: '1000 ml', image: '/images/products/coconut-oil.jpg', rating: 4.8, reviews: 203, inStock: true, category: 'oil', isBestseller: true },
-        { id: 22, name: 'Virgin Coconut Oil', price: 680, size: '500 ml', image: '/images/products/coconut-oil.jpg', rating: 4.8, reviews: 178, inStock: true, category: 'oil' },
-        { id: 23, name: 'Virgin Coconut Oil', price: 380, size: '250 ml', image: '/images/products/coconut-oil.jpg', rating: 4.8, reviews: 145, inStock: true, category: 'oil' },
-        { id: 24, name: 'Virgin Coconut Oil', price: 190, size: '100 ml', image: '/images/products/coconut-oil.jpg', rating: 4.8, reviews: 112, inStock: true, category: 'oil' },
+        { id: 21, name: 'Virgin Coconut Oil', price: 1290, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 203, inStock: true, category: 'oil', isBestseller: true },
+        { id: 22, name: 'Virgin Coconut Oil', price: 680, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 178, inStock: true, category: 'oil' },
+        { id: 23, name: 'Virgin Coconut Oil', price: 380, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 145, inStock: true, category: 'oil' },
+        { id: 24, name: 'Virgin Coconut Oil', price: 190, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 112, inStock: true, category: 'oil' },
         
         // Cold Pressed Almond Oil
-        { id: 25, name: 'Cold Pressed Almond Oil', price: 1200, size: '1000 ml', image: '/images/products/coconut-oil.jpg', rating: 4.7, reviews: 192, inStock: true, category: 'oil', isBestseller: true },
-        { id: 26, name: 'Cold Pressed Almond Oil', price: 650, size: '500 ml', image: '/images/products/coconut-oil.jpg', rating: 4.7, reviews: 167, inStock: true, category: 'oil' },
-        { id: 27, name: 'Cold Pressed Almond Oil', price: 360, size: '250 ml', image: '/images/products/coconut-oil.jpg', rating: 4.7, reviews: 134, inStock: true, category: 'oil' },
-        { id: 28, name: 'Cold Pressed Almond Oil', price: 180, size: '100 ml', image: '/images/products/coconut-oil.jpg', rating: 4.7, reviews: 98, inStock: true, category: 'oil' },
+        { id: 25, name: 'Cold Pressed Almond Oil', price: 1200, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 192, inStock: true, category: 'oil', isBestseller: true },
+        { id: 26, name: 'Cold Pressed Almond Oil', price: 650, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 167, inStock: true, category: 'oil' },
+        { id: 27, name: 'Cold Pressed Almond Oil', price: 360, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 134, inStock: true, category: 'oil' },
+        { id: 28, name: 'Cold Pressed Almond Oil', price: 180, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 98, inStock: true, category: 'oil' },
         
         // Cold Pressed Olive Oil
-        { id: 29, name: 'Cold Pressed Olive Oil', price: 1810, size: '1000 ml', image: '/images/products/olive-oil.jpg', rating: 4.5, reviews: 156, inStock: true, category: 'oil', isBestseller: true },
-        { id: 30, name: 'Cold Pressed Olive Oil', price: 950, size: '500 ml', image: '/images/products/olive-oil.jpg', rating: 4.5, reviews: 134, inStock: true, category: 'oil' },
-        { id: 31, name: 'Cold Pressed Olive Oil', price: 520, size: '250 ml', image: '/images/products/olive-oil.jpg', rating: 4.5, reviews: 112, inStock: true, category: 'oil' },
-        { id: 32, name: 'Cold Pressed Olive Oil', price: 260, size: '100 ml', image: '/images/products/olive-oil.jpg', rating: 4.5, reviews: 89, inStock: true, category: 'oil' },
+        { id: 29, name: 'Cold Pressed Olive Oil', price: 1810, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 156, inStock: true, category: 'oil', isBestseller: true },
+        { id: 30, name: 'Cold Pressed Olive Oil', price: 950, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 134, inStock: true, category: 'oil' },
+        { id: 31, name: 'Cold Pressed Olive Oil', price: 520, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 112, inStock: true, category: 'oil' },
+        { id: 32, name: 'Cold Pressed Olive Oil', price: 260, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 89, inStock: true, category: 'oil' },
         
         // Cold Pressed Castor Oil
-        { id: 33, name: 'Cold Pressed Castor Oil', price: 420, size: '1000 ml', image: '/images/products/coconut-oil.jpg', rating: 4.4, reviews: 134, inStock: true, category: 'oil' },
-        { id: 34, name: 'Cold Pressed Castor Oil', price: 240, size: '500 ml', image: '/images/products/coconut-oil.jpg', rating: 4.4, reviews: 112, inStock: true, category: 'oil' },
-        { id: 35, name: 'Cold Pressed Castor Oil', price: 140, size: '250 ml', image: '/images/products/coconut-oil.jpg', rating: 4.4, reviews: 89, inStock: true, category: 'oil' },
-        { id: 36, name: 'Cold Pressed Castor Oil', price: 70, size: '100 ml', image: '/images/products/coconut-oil.jpg', rating: 4.4, reviews: 67, inStock: true, category: 'oil' },
+        { id: 33, name: 'Cold Pressed Castor Oil', price: 420, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 134, inStock: true, category: 'oil' },
+        { id: 34, name: 'Cold Pressed Castor Oil', price: 240, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 112, inStock: true, category: 'oil' },
+        { id: 35, name: 'Cold Pressed Castor Oil', price: 140, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 89, inStock: true, category: 'oil' },
+        { id: 36, name: 'Cold Pressed Castor Oil', price: 70, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 67, inStock: true, category: 'oil' },
         
         // Premium Desi Cow Bilona Ghee
-        { id: 37, name: 'Premium Desi Cow Bilona Ghee', price: 1450, size: '1 KG', image: '/images/products/ghee.jpg', rating: 4.8, reviews: 256, inStock: true, category: 'ghee', isBestseller: true },
-        { id: 38, name: 'Premium Desi Cow Bilona Ghee', price: 750, size: '500 GM', image: '/images/products/ghee.jpg', rating: 4.8, reviews: 223, inStock: true, category: 'ghee' },
-        { id: 39, name: 'Premium Desi Cow Bilona Ghee', price: 320, size: '200 GM', image: '/images/products/ghee.jpg', rating: 4.8, reviews: 189, inStock: true, category: 'ghee' },
+        { id: 37, name: 'Premium Desi Cow Bilona Ghee', price: 1450, size: '1 KG', image: '/images/products/GHEE.png', rating: 4.8, reviews: 256, inStock: true, category: 'ghee', isBestseller: true },
+        { id: 38, name: 'Premium Desi Cow Bilona Ghee', price: 750, size: '500 GM', image: '/images/products/GHEE.png', rating: 4.8, reviews: 223, inStock: true, category: 'ghee' },
+        { id: 39, name: 'Premium Desi Cow Bilona Ghee', price: 320, size: '200 GM', image: '/images/products/GHEE.png', rating: 4.8, reviews: 189, inStock: true, category: 'ghee' },
         
         // Pure Hing (Asafoetida)
-        { id: 40, name: 'Pure Hing (Asafoetida)', price: 280, size: '50 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.6, reviews: 145, inStock: true, category: 'superfoods' },
-        { id: 41, name: 'Pure Hing (Asafoetida)', price: 150, size: '25 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.6, reviews: 112, inStock: true, category: 'superfoods' },
-        { id: 42, name: 'Pure Hing (Asafoetida)', price: 80, size: '10 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.6, reviews: 89, inStock: true, category: 'superfoods' },
+        { id: 40, name: 'Pure Hing (Asafoetida)', price: 280, size: '50 GM', image: '/images/products/Hing.png', rating: 4.6, reviews: 145, inStock: true, category: 'superfoods' },
+        { id: 41, name: 'Pure Hing (Asafoetida)', price: 150, size: '25 GM', image: '/images/products/Hing.png', rating: 4.6, reviews: 112, inStock: true, category: 'superfoods' },
+        { id: 42, name: 'Pure Hing (Asafoetida)', price: 80, size: '10 GM', image: '/images/products/Hing.png', rating: 4.6, reviews: 89, inStock: true, category: 'superfoods' },
         
         // Jeeravan Masala
-        { id: 43, name: 'Jeeravan Masala', price: 180, size: '250 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.5, reviews: 167, inStock: true, category: 'superfoods' },
-        { id: 44, name: 'Jeeravan Masala', price: 100, size: '100 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.5, reviews: 134, inStock: true, category: 'superfoods' },
-        { id: 45, name: 'Jeeravan Masala', price: 60, size: '50 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.5, reviews: 112, inStock: true, category: 'superfoods' },
-        { id: 46, name: 'Jeeravan Masala', price: 35, size: '25 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.5, reviews: 89, inStock: true, category: 'superfoods' },
-        { id: 47, name: 'Jeeravan Masala', price: 20, size: '10 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.5, reviews: 67, inStock: true, category: 'superfoods' },
+        { id: 43, name: 'Jeeravan Masala', price: 180, size: '250 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 167, inStock: true, category: 'superfoods' },
+        { id: 44, name: 'Jeeravan Masala', price: 100, size: '100 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 134, inStock: true, category: 'superfoods' },
+        { id: 45, name: 'Jeeravan Masala', price: 60, size: '50 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 112, inStock: true, category: 'superfoods' },
+        { id: 46, name: 'Jeeravan Masala', price: 35, size: '25 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 89, inStock: true, category: 'superfoods' },
+        { id: 47, name: 'Jeeravan Masala', price: 20, size: '10 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 67, inStock: true, category: 'superfoods' },
         
         // Garam Masala
-        { id: 48, name: 'Garam Masala', price: 200, size: '250 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.7, reviews: 189, inStock: true, category: 'superfoods' },
-        { id: 49, name: 'Garam Masala', price: 110, size: '100 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.7, reviews: 156, inStock: true, category: 'superfoods' },
-        { id: 50, name: 'Garam Masala', price: 65, size: '50 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.7, reviews: 123, inStock: true, category: 'superfoods' },
-        { id: 51, name: 'Garam Masala', price: 38, size: '25 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.7, reviews: 98, inStock: true, category: 'superfoods' },
-        { id: 52, name: 'Garam Masala', price: 22, size: '10 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.7, reviews: 78, inStock: true, category: 'superfoods' },
+        { id: 48, name: 'Garam Masala', price: 200, size: '250 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 189, inStock: true, category: 'superfoods' },
+        { id: 49, name: 'Garam Masala', price: 110, size: '100 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 156, inStock: true, category: 'superfoods' },
+        { id: 50, name: 'Garam Masala', price: 65, size: '50 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 123, inStock: true, category: 'superfoods' },
+        { id: 51, name: 'Garam Masala', price: 38, size: '25 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 98, inStock: true, category: 'superfoods' },
+        { id: 52, name: 'Garam Masala', price: 22, size: '10 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 78, inStock: true, category: 'superfoods' },
         
         // 100% Arabica Coffee Powder
-        { id: 53, name: '100% Arabica Coffee Powder', price: 450, size: '250 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.6, reviews: 178, inStock: true, category: 'superfoods' },
-        { id: 54, name: '100% Arabica Coffee Powder', price: 250, size: '100 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.6, reviews: 145, inStock: true, category: 'superfoods' },
-        { id: 55, name: '100% Arabica Coffee Powder', price: 140, size: '50 GM', image: '/images/all/IMG-20251019-WA0015.jpg', rating: 4.6, reviews: 112, inStock: true, category: 'superfoods' },
+        { id: 53, name: '100% Arabica Coffee Powder', price: 450, size: '250 GM', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 178, inStock: true, category: 'superfoods' },
+        { id: 54, name: '100% Arabica Coffee Powder', price: 250, size: '100 GM', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 145, inStock: true, category: 'superfoods' },
+        { id: 55, name: '100% Arabica Coffee Powder', price: 140, size: '50 GM', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 112, inStock: true, category: 'superfoods' },
     ];
 };
 
@@ -231,6 +231,7 @@ const quickFilterConfig: QuickFilter[] = [
 function AllProductsContent() {
     const { addToCart, cart } = useCart();
     const [products, setProducts] = useState<Product[]>([]); // Start with empty array - only show admin products
+    const [categories, setCategories] = useState<Category[]>([]);
 
     // Load products from Firebase (with real-time updates)
     useEffect(() => {
@@ -240,7 +241,35 @@ function AllProductsContent() {
                 const firebaseProducts = await getAllProductsFromFirebase();
                 
                 if (firebaseProducts && firebaseProducts.length > 0) {
-                    setProducts(firebaseProducts);
+                    // Check if products have old/wrong image paths and fix them
+                    const fixedProducts = firebaseProducts.map(product => {
+                        // Fix old image paths to correct ones
+                        if (product.image === '/images/products/ghee.jpg') {
+                            product.image = '/images/products/GHEE.png';
+                        }
+                        if (product.image === '/images/products/sunflower-oil.jpg' || 
+                            product.image === '/images/products/coconut-oil.jpg' || 
+                            product.image === '/images/products/olive-oil.jpg') {
+                            product.image = '/images/all/products image available soon.png';
+                        }
+                        if (product.image === '/images/all/IMG-20251019-WA0015.jpg') {
+                            product.image = '/images/all/products image available soon.png';
+                        }
+                        // Fix Hing and Garam Masala paths if they have wrong encoding or paths
+                        if (product.name && product.name.includes('Hing') && product.image !== '/images/products/Hing.png') {
+                            product.image = '/images/products/Hing.png';
+                        }
+                        if (product.name && product.name.includes('Garam Masala')) {
+                            // Fix if path has encoding or wrong format
+                            if (product.image !== '/images/products/Garam Masala.jpeg' && 
+                                !product.image.includes('Garam%20Masala') && 
+                                !product.image.includes('Garam Masala')) {
+                                product.image = '/images/products/Garam Masala.jpeg';
+                            }
+                        }
+                        return product;
+                    });
+                    setProducts(fixedProducts);
                 } else {
                     // If no products in Firebase, use defaults
                     const defaultProducts = getAllDefaultProducts();
@@ -254,7 +283,33 @@ function AllProductsContent() {
                     try {
                         const parsed = JSON.parse(adminProducts);
                         if (parsed && Array.isArray(parsed)) {
-                            setProducts(parsed);
+                            // Fix old image paths
+                            const fixedProducts = parsed.map((product: Product) => {
+                                if (product.image === '/images/products/ghee.jpg') {
+                                    product.image = '/images/products/GHEE.png';
+                                }
+                                if (product.image === '/images/products/sunflower-oil.jpg' || 
+                                    product.image === '/images/products/coconut-oil.jpg' || 
+                                    product.image === '/images/products/olive-oil.jpg') {
+                                    product.image = '/images/all/products image available soon.png';
+                                }
+                                if (product.image === '/images/all/IMG-20251019-WA0015.jpg') {
+                                    product.image = '/images/all/products image available soon.png';
+                                }
+                                // Fix Hing and Garam Masala paths
+                                if (product.name && product.name.includes('Hing') && product.image !== '/images/products/Hing.png') {
+                                    product.image = '/images/products/Hing.png';
+                                }
+                                if (product.name && product.name.includes('Garam Masala')) {
+                                    if (product.image !== '/images/products/Garam Masala.jpeg' && 
+                                        !product.image.includes('Garam%20Masala') && 
+                                        !product.image.includes('Garam Masala')) {
+                                        product.image = '/images/products/Garam Masala.jpeg';
+                                    }
+                                }
+                                return product;
+                            });
+                            setProducts(fixedProducts);
                             return;
                         }
                     } catch (parseError) {
@@ -272,7 +327,33 @@ function AllProductsContent() {
         // Subscribe to real-time updates from Firebase
         const unsubscribe = subscribeToProducts((updatedProducts) => {
             if (updatedProducts && updatedProducts.length > 0) {
-                setProducts(updatedProducts);
+                // Fix old image paths in real-time updates too
+                const fixedProducts = updatedProducts.map(product => {
+                    if (product.image === '/images/products/ghee.jpg') {
+                        product.image = '/images/products/GHEE.png';
+                    }
+                    if (product.image === '/images/products/sunflower-oil.jpg' || 
+                        product.image === '/images/products/coconut-oil.jpg' || 
+                        product.image === '/images/products/olive-oil.jpg') {
+                        product.image = '/images/all/products image available soon.png';
+                    }
+                    if (product.image === '/images/all/IMG-20251019-WA0015.jpg') {
+                        product.image = '/images/all/products image available soon.png';
+                    }
+                    // Fix Hing and Garam Masala paths
+                    if (product.name && product.name.includes('Hing') && product.image !== '/images/products/Hing.png') {
+                        product.image = '/images/products/Hing.png';
+                    }
+                    if (product.name && product.name.includes('Garam Masala')) {
+                        if (product.image !== '/images/products/Garam Masala.jpeg' && 
+                            !product.image.includes('Garam%20Masala') && 
+                            !product.image.includes('Garam Masala')) {
+                            product.image = '/images/products/Garam Masala.jpeg';
+                        }
+                    }
+                    return product;
+                });
+                setProducts(fixedProducts);
             }
         });
 
@@ -282,19 +363,163 @@ function AllProductsContent() {
             }
         };
     }, []);
+
+    // Load categories from Firebase
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const loadedCategories = await getAllCategoriesFromFirebase();
+                setCategories(loadedCategories);
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        };
+
+        loadCategories();
+
+        // Subscribe to real-time category updates
+        const unsubscribe = subscribeToCategories((updatedCategories) => {
+            setCategories(updatedCategories);
+        });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, []);
+
     const [activeFilter, setActiveFilter] = useState<string>('all');
     const [sortBy, setSortBy] = useState<string>('default');
     const [searchKeyword, setSearchKeyword] = useState('');
     const [inlineSearchTerm, setInlineSearchTerm] = useState('');
     const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-    const quickFilters = quickFilterConfig;
-    const activeFilterContent = filterMeta[activeFilter] ?? filterMeta.all;
+
+    // Build dynamic filter metadata from categories
+    const dynamicFilterMeta = useMemo(() => {
+        const baseMeta = { ...filterMeta };
+        
+        // Add metadata for dynamic categories
+        categories.forEach(cat => {
+            if (!baseMeta[cat.value]) {
+                baseMeta[cat.value] = {
+                    title: cat.label,
+                    description: `Explore our premium ${cat.label.toLowerCase()} collection`,
+                };
+            }
+        });
+        
+        return baseMeta;
+    }, [categories]);
+
+    // Build dynamic quick filters from categories
+    const quickFilters = useMemo(() => {
+        const staticFilters = [
+            {
+                id: 'new',
+                label: 'New',
+                icon: (
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <path d="M12 2l2.39 4.85 5.35.78-3.87 3.77.91 5.32L12 14.77l-4.78 2.51.91-5.32L4.26 7.63l5.35-.78L12 2z" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                ),
+            },
+            {
+                id: 'deals',
+                label: 'Deals',
+                icon: (
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <path d="M4 13l4 8h8l4-8-4-8H8z" />
+                        <path d="M9 13h6" strokeLinecap="round" />
+                    </svg>
+                ),
+            },
+        ];
+
+        // Get unique category values from products
+        const usedCategoryValues = new Set(products.map(p => p.category).filter(Boolean));
+
+        // Filter categories to only include those that have products
+        const usedCategories = categories.filter(cat => usedCategoryValues.has(cat.value));
+
+        // Map categories to filter format with icons
+        const categoryFilters = usedCategories.map((cat) => {
+            // Default icon for categories
+            let icon = (
+                <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 12h8" strokeLinecap="round" />
+                </svg>
+            );
+
+            // Custom icons for known categories
+            if (cat.value === 'oil') {
+                icon = (
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <path d="M12 3l4 5a4.5 4.5 0 11-8 0l4-5z" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                );
+            } else if (cat.value === 'ghee') {
+                icon = (
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <path d="M6 8h12l-1 10H7L6 8z" />
+                        <path d="M9 8a3 3 0 116 0" strokeLinecap="round" />
+                    </svg>
+                );
+            } else if (cat.value === 'superfoods') {
+                icon = (
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <path d="M12 4c4 0 7 3 7 7s-3 7-7 7-7-3-7-7 3-7 7-7z" />
+                        <path d="M8 10c0 2.2 1.8 4 4 4s4-1.8 4-4" strokeLinecap="round" />
+                    </svg>
+                );
+            } else if (cat.value === 'combo') {
+                icon = (
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <rect x="5" y="7" width="14" height="10" rx="2" />
+                        <path d="M9 7v10M15 7v10" />
+                    </svg>
+                );
+            }
+
+            return {
+                id: cat.value,
+                label: cat.label,
+                icon,
+            };
+        });
+
+        const priceFilters = [
+            {
+                id: 'under-499',
+                label: 'Under ₹499',
+                icon: <span className="text-xs font-semibold">₹499</span>,
+            },
+            {
+                id: 'under-999',
+                label: 'Under ₹999',
+                icon: <span className="text-xs font-semibold">₹999</span>,
+            },
+        ];
+
+        const allFilter = {
+            id: 'all',
+            label: 'All',
+            icon: (
+                <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <circle cx="12" cy="12" r="8" />
+                    <path d="M8 12h8" strokeLinecap="round" />
+                </svg>
+            ),
+        };
+
+        return [...staticFilters, ...categoryFilters, ...priceFilters, allFilter];
+    }, [categories, products]);
+    const activeFilterContent = dynamicFilterMeta[activeFilter] ?? dynamicFilterMeta.all;
     const searchParams = useSearchParams();
     const router = useRouter();
 
     useEffect(() => {
         const filterParam = searchParams.get('filter');
-        if (filterParam && filterMeta[filterParam]) {
+        if (filterParam && dynamicFilterMeta[filterParam]) {
             setActiveFilter(filterParam);
         } else if (!filterParam) {
             setActiveFilter('all');
@@ -310,28 +535,22 @@ function AllProductsContent() {
         let filtered = products;
 
         // Quick filter logic
-        switch (activeFilter) {
-            case 'oil':
-            case 'ghee':
-            case 'superfoods':
-            case 'combo':
+        if (activeFilter === 'new') {
+            filtered = filtered.filter(p => p.isNew);
+        } else if (activeFilter === 'deals') {
+            filtered = filtered.filter(p => (p.discount ?? 0) >= 15);
+        } else if (activeFilter === 'under-499') {
+            filtered = filtered.filter(p => p.price <= 499);
+        } else if (activeFilter === 'under-999') {
+            filtered = filtered.filter(p => p.price <= 999);
+        } else if (activeFilter === 'all') {
+            // Show all products
+        } else {
+            // Dynamic category filter - check if it's a category
+            const categoryValues = categories.map(cat => cat.value);
+            if (categoryValues.includes(activeFilter)) {
                 filtered = filtered.filter(p => p.category === activeFilter);
-                break;
-            case 'new':
-                filtered = filtered.filter(p => p.isNew);
-                break;
-            case 'deals':
-                filtered = filtered.filter(p => (p.discount ?? 0) >= 15);
-                break;
-            case 'under-499':
-                filtered = filtered.filter(p => p.price <= 499);
-                break;
-            case 'under-999':
-                filtered = filtered.filter(p => p.price <= 999);
-                break;
-            case 'all':
-            default:
-                break;
+            }
         }
 
         if (searchKeyword.trim()) {
@@ -389,7 +608,7 @@ function AllProductsContent() {
             <Suspense fallback={<div className="h-20 bg-white"></div>}><Header /></Suspense>
 
             {/* Page Header */}
-            <div className="rich-gradient py-6 md:py-8 border-b border-[#E2DACF]/30">
+            <div className="rich-gradient pt-20 sm:pt-24 pb-6 md:pb-8 border-b border-[#E2DACF]/30">
                 <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl">
                     <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gradient mb-2 text-shadow-premium animate-fade-in-up" style={{ fontFamily: 'var(--font-playfair), serif' }}>
                         {activeFilterContent.title}

@@ -47,7 +47,7 @@ export default function CartPage() {
     return (
         <div className="min-h-screen bg-white">
             <Suspense fallback={<div className="h-20 bg-white"></div>}><Header /></Suspense>
-            <div className="py-8 md:py-12">
+            <div className="pt-20 sm:pt-24 pb-8 md:pb-12">
                 <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl">
                     <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-8" style={{ fontFamily: 'var(--font-playfair), serif' }}>
                         Shopping Cart
@@ -64,39 +64,68 @@ export default function CartPage() {
                                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                                         {/* Product Image */}
                                         <div className="w-full sm:w-24 md:w-32 h-24 sm:h-24 md:h-32 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                                            {item.image && item.image.trim() !== '' ? (
-                                                item.image.startsWith('http') ? (
+                                            {(() => {
+                                                const placeholderImage = '/images/all/products image available soon.png';
+                                                let imageSrc = (item.image && item.image.trim() !== '') ? item.image.trim() : placeholderImage;
+                                                
+                                                // Fix old/wrong image paths
+                                                if (imageSrc === '/images/products/ghee.jpg') {
+                                                    imageSrc = '/images/products/GHEE.png';
+                                                }
+                                                if (imageSrc === '/images/products/sunflower-oil.jpg' || 
+                                                    imageSrc === '/images/products/coconut-oil.jpg' || 
+                                                    imageSrc === '/images/products/olive-oil.jpg') {
+                                                    imageSrc = placeholderImage;
+                                                }
+                                                if (imageSrc === '/images/all/IMG-20251019-WA0015.jpg') {
+                                                    imageSrc = placeholderImage;
+                                                }
+                                                
+                                                // For base64 images, use directly
+                                                if (imageSrc.startsWith('data:image/')) {
+                                                    return (
+                                                        <img
+                                                            src={imageSrc}
+                                                            alt={item.name}
+                                                            className="w-full h-full object-cover"
+                                                            loading="lazy"
+                                                        />
+                                                    );
+                                                }
+                                                
+                                                // For HTTP URLs, use directly
+                                                if (imageSrc.startsWith('http')) {
+                                                    return (
+                                                        <img
+                                                            src={imageSrc}
+                                                            alt={item.name}
+                                                            className="w-full h-full object-cover"
+                                                            loading="lazy"
+                                                            onError={(e) => {
+                                                                e.currentTarget.src = placeholderImage.replace(/ /g, '%20');
+                                                            }}
+                                                        />
+                                                    );
+                                                }
+                                                
+                                                // For local paths, encode spaces
+                                                const encodedSrc = imageSrc.replace(/ /g, '%20');
+                                                const placeholderEncoded = placeholderImage.replace(/ /g, '%20');
+                                                
+                                                return (
                                                     <img
-                                                        src={item.image}
+                                                        src={encodedSrc}
                                                         alt={item.name}
                                                         className="w-full h-full object-cover"
+                                                        loading="lazy"
                                                         onError={(e) => {
-                                                            e.currentTarget.style.display = 'none';
-                                                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                                            if (!e.currentTarget.src.includes('products%20image%20available%20soon')) {
+                                                                e.currentTarget.src = placeholderEncoded;
+                                                            }
                                                         }}
                                                     />
-                                                ) : (
-                                                    <Image
-                                                        src={item.image}
-                                                        alt={item.name}
-                                                        width={128}
-                                                        height={128}
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => {
-                                                            e.currentTarget.style.display = 'none';
-                                                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                                        }}
-                                                    />
-                                                )
-                                            ) : (
-                                                <Image
-                                                    src="/images/all/products image available soon.png"
-                                                    alt={item.name}
-                                                    width={128}
-                                                    height={128}
-                                                    className="w-full h-full object-contain p-2"
-                                                />
-                                            )}
+                                                );
+                                            })()}
                                         </div>
 
                                         {/* Product Details */}

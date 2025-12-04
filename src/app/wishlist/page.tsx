@@ -47,7 +47,7 @@ export default function WishlistPage() {
     return (
         <div className="min-h-screen bg-white">
             <Suspense fallback={<div className="h-20 bg-white"></div>}><Header /></Suspense>
-            <div className="py-8 md:py-12">
+            <div className="pt-20 sm:pt-24 pb-8 md:pb-12">
                 <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6 sm:mb-8">
                         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-black" style={{ fontFamily: 'var(--font-playfair), serif' }}>

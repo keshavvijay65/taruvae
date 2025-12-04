@@ -11,6 +11,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import Image from 'next/image';
+import AlertModal from '@/components/AlertModal';
+import ConfirmModal from '@/components/ConfirmModal';
 
 interface Order {
     orderId: string;
@@ -61,6 +63,18 @@ export default function AccountPage() {
         isDefault: false,
     });
     const [addressErrors, setAddressErrors] = useState<Record<string, string>>({});
+    const [alertModal, setAlertModal] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'info',
+    });
+    const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {},
+    });
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -112,7 +126,7 @@ export default function AccountPage() {
             <Suspense fallback={<div className="h-20 bg-white"></div>}>
                 <Header />
             </Suspense>
-            <div className="py-8 md:py-12">
+            <div className="pt-20 sm:pt-24 pb-8 md:pb-12">
                 <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6 sm:mb-8">
                         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-black" style={{ fontFamily: 'var(--font-playfair), serif' }}>
@@ -258,7 +272,12 @@ export default function AccountPage() {
                                     
                                     const result = await addAddress(addressFormData);
                                     if (result.success) {
-                                        alert('Address added successfully!');
+                                        setAlertModal({
+                                            isOpen: true,
+                                            title: 'Success',
+                                            message: 'Address added successfully!',
+                                            type: 'success',
+                                        });
                                         setShowAddAddressForm(false);
                                         setAddressFormData({
                                             firstName: user?.name?.split(' ')[0] || '',
@@ -272,7 +291,12 @@ export default function AccountPage() {
                                             isDefault: false,
                                         });
                                     } else {
-                                        alert(result.message || 'Failed to add address');
+                                        setAlertModal({
+                                            isOpen: true,
+                                            title: 'Error',
+                                            message: result.message || 'Failed to add address',
+                                            type: 'error',
+                                        });
                                     }
                                 }} className="space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -444,7 +468,12 @@ export default function AccountPage() {
                                                     onClick={async () => {
                                                         const result = await setDefaultAddress(addr.id);
                                                         if (result.success) {
-                                                            alert('Default address updated!');
+                                                            setAlertModal({
+                                                                isOpen: true,
+                                                                title: 'Success',
+                                                                message: 'Default address updated!',
+                                                                type: 'success',
+                                                            });
                                                         }
                                                     }}
                                                     className="text-xs px-3 py-1 bg-[#2D5016] text-white rounded hover:bg-[#4A7C2A] transition-colors"
@@ -453,13 +482,23 @@ export default function AccountPage() {
                                                 </button>
                                             )}
                                             <button
-                                                onClick={async () => {
-                                                    if (confirm('Are you sure you want to delete this address?')) {
-                                                        const result = await deleteAddress(addr.id);
-                                                        if (result.success) {
-                                                            alert('Address deleted!');
-                                                        }
-                                                    }
+                                                onClick={() => {
+                                                    setConfirmModal({
+                                                        isOpen: true,
+                                                        title: 'Delete Address',
+                                                        message: 'Are you sure you want to delete this address?',
+                                                        onConfirm: async () => {
+                                                            const result = await deleteAddress(addr.id);
+                                                            if (result.success) {
+                                                                setAlertModal({
+                                                                    isOpen: true,
+                                                                    title: 'Success',
+                                                                    message: 'Address deleted!',
+                                                                    type: 'success',
+                                                                });
+                                                            }
+                                                        },
+                                                    });
                                                 }}
                                                 className="text-xs px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                                             >
@@ -537,6 +576,29 @@ export default function AccountPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Alert Modal */}
+            <AlertModal
+                isOpen={alertModal.isOpen}
+                title={alertModal.title}
+                message={alertModal.message}
+                type={alertModal.type}
+                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+            />
+
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                onConfirm={() => {
+                    confirmModal.onConfirm();
+                    setConfirmModal({ ...confirmModal, isOpen: false });
+                }}
+                onCancel={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                type="danger"
+            />
+
             <Footer />
         </div>
     );

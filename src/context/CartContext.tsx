@@ -18,6 +18,9 @@ export interface Product {
     isNew?: boolean;
     isBestseller?: boolean;
     isPrime?: boolean; // Fast/Priority Delivery
+    description?: string; // Product description
+    features?: string[]; // Key features array
+    benefits?: string[]; // Benefits array
 }
 
 export interface CartItem extends Product {

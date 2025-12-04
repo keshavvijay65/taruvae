@@ -50,6 +50,22 @@ export interface Order {
     userId?: string | null;
 }
 
+// Helper function to remove undefined values (Firebase doesn't allow undefined)
+function removeUndefinedValues(obj: any): any {
+    if (Array.isArray(obj)) {
+        return obj.map(item => removeUndefinedValues(item));
+    } else if (obj !== null && typeof obj === 'object') {
+        const cleaned: any = {};
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key) && obj[key] !== undefined) {
+                cleaned[key] = removeUndefinedValues(obj[key]);
+            }
+        }
+        return cleaned;
+    }
+    return obj;
+}
+
 // Save order to Firebase
 export async function saveOrderToFirebase(order: Order): Promise<{ success: boolean; message: string }> {
     try {
@@ -67,8 +83,11 @@ export async function saveOrderToFirebase(order: Order): Promise<{ success: bool
             return { success: true, message: 'Order saved to localStorage (Firebase not configured)' };
         }
 
+        // Remove undefined values before saving to Firebase
+        const cleanedOrder = removeUndefinedValues(order);
+        
         const orderRef = ref(database, `orders/${order.orderId}`);
-        await set(orderRef, order);
+        await set(orderRef, cleanedOrder);
         
         // Also save to localStorage as backup
         const existingOrders = JSON.parse(localStorage.getItem('taruvae-orders') || '[]');

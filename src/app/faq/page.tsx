@@ -76,7 +76,7 @@ export default function FAQPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-white via-[#FDF8F1] to-white">
             <Suspense fallback={<div className="h-20 bg-white"></div>}><Header /></Suspense>
-            <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl py-12 md:py-16">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl pt-20 sm:pt-24 pb-12 md:pb-16">
                 {/* Enhanced Header */}
                 <div className="text-center mb-12 md:mb-16">
                     <div className="inline-block mb-4">

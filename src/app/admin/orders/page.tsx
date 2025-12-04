@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import AlertModal from '@/components/AlertModal';
 import { subscribeToOrders, updateOrderStatusInFirebase, getAllOrdersFromFirebase, Order } from '@/lib/firebaseOrders';
 
 // Order interface is now imported from firebaseOrders
@@ -16,6 +17,12 @@ export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [filterStatus, setFilterStatus] = useState<string>('all');
+    const [alertModal, setAlertModal] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'info',
+    });
 
     useEffect(() => {
         const auth = localStorage.getItem('admin-authenticated');
@@ -24,7 +31,8 @@ export default function AdminOrdersPage() {
             loadOrders();
             // Subscribe to real-time updates
             const unsubscribe = subscribeToOrders((firebaseOrders) => {
-                const ordersWithDefaults = firebaseOrders.map(order => ({
+                console.log('Real-time orders update:', firebaseOrders.length);
+                const ordersWithDefaults = (firebaseOrders || []).map(order => ({
                     ...order,
                     status: order.status || 'confirmed',
                     trackingNumber: order.trackingNumber || `TRK${order.orderId.replace('ORD-', '')}`,
@@ -32,7 +40,9 @@ export default function AdminOrdersPage() {
                 ordersWithDefaults.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
                 setOrders(ordersWithDefaults);
             });
-            return () => unsubscribe();
+            return () => {
+                if (unsubscribe) unsubscribe();
+            };
         } else {
             router.push('/admin/login');
         }
@@ -43,7 +53,8 @@ export default function AdminOrdersPage() {
         try {
             // Load from Firebase first
             const firebaseOrders = await getAllOrdersFromFirebase();
-            const ordersWithDefaults = firebaseOrders.map(order => ({
+            console.log('Loaded orders from Firebase:', firebaseOrders?.length || 0);
+            const ordersWithDefaults = (firebaseOrders || []).map(order => ({
                 ...order,
                 status: order.status || 'confirmed',
                 trackingNumber: order.trackingNumber || `TRK${order.orderId.replace('ORD-', '')}`,
@@ -51,16 +62,22 @@ export default function AdminOrdersPage() {
             ordersWithDefaults.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
             setOrders(ordersWithDefaults);
         } catch (error) {
-            console.error('Error loading orders:', error);
+            console.error('Error loading orders from Firebase:', error);
             // Fallback to localStorage
-            const localOrders: Order[] = JSON.parse(localStorage.getItem('taruvae-orders') || '[]');
-            const ordersWithDefaults = localOrders.map(order => ({
-                ...order,
-                status: order.status || 'confirmed',
-                trackingNumber: order.trackingNumber || `TRK${order.orderId.replace('ORD-', '')}`,
-            }));
-            ordersWithDefaults.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
-            setOrders(ordersWithDefaults);
+            try {
+                const localOrders: Order[] = JSON.parse(localStorage.getItem('taruvae-orders') || '[]');
+                console.log('Loaded orders from localStorage:', localOrders.length);
+                const ordersWithDefaults = (localOrders || []).map(order => ({
+                    ...order,
+                    status: order.status || 'confirmed',
+                    trackingNumber: order.trackingNumber || `TRK${order.orderId.replace('ORD-', '')}`,
+                }));
+                ordersWithDefaults.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+                setOrders(ordersWithDefaults);
+            } catch (localError) {
+                console.error('Error loading from localStorage:', localError);
+                setOrders([]);
+            }
         }
     };
 
@@ -68,14 +85,29 @@ export default function AdminOrdersPage() {
         try {
             const result = await updateOrderStatusInFirebase(orderId, newStatus);
             if (result.success) {
-                alert('Order status updated successfully!');
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Success',
+                    message: 'Order status updated successfully!',
+                    type: 'success',
+                });
                 // Real-time listener will automatically update the UI
             } else {
-                alert(`Failed to update order status: ${result.message}`);
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Error',
+                    message: `Failed to update order status: ${result.message}`,
+                    type: 'error',
+                });
             }
         } catch (error: any) {
             console.error('Error updating order status:', error);
-            alert('Failed to update order status. Please try again.');
+            setAlertModal({
+                isOpen: true,
+                title: 'Error',
+                message: 'Failed to update order status. Please try again.',
+                type: 'error',
+            });
         }
     };
 
@@ -107,7 +139,7 @@ export default function AdminOrdersPage() {
     return (
         <div className="min-h-screen bg-white">
             <Suspense fallback={<div className="h-20 bg-white"></div>}><Header /></Suspense>
-            <div className="py-8 md:py-12">
+            <div className="pt-20 sm:pt-24 pb-8 md:pb-12">
                 <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl">
                     <div className="flex items-center justify-between mb-8">
                         <div>
@@ -314,6 +346,16 @@ export default function AdminOrdersPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Alert Modal */}
+            <AlertModal
+                isOpen={alertModal.isOpen}
+                title={alertModal.title}
+                message={alertModal.message}
+                type={alertModal.type}
+                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+            />
+
             <Suspense fallback={<div className="h-20 bg-white"></div>}><Footer /></Suspense>
         </div>
     );

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, Product } from '@/context/CartContext';
@@ -84,6 +83,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             
             {/* Product Image Container - Compact */}
             <div className="relative w-full aspect-square bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden group/image rounded-t-xl">
+                <Link href={`/products/${product.id}`} className="absolute inset-0 z-0">
                 {/* Premium Shine Effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-10" />
                 
@@ -93,45 +93,68 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 z-0">
                     {(() => {
                         const placeholderImage = '/images/all/products image available soon.png';
-                        const imageSrc = (product.image && product.image.trim() !== '') ? product.image : placeholderImage;
+                        let imageSrc = (product.image && product.image !== '') ? product.image.trim() : placeholderImage;
                         
-                        if (imageSrc.startsWith('http')) {
+                        // Fix old/wrong image paths before encoding
+                        if (imageSrc === '/images/products/ghee.jpg') {
+                            imageSrc = '/images/products/GHEE.png';
+                        }
+                        if (imageSrc === '/images/products/sunflower-oil.jpg' || 
+                            imageSrc === '/images/products/coconut-oil.jpg' || 
+                            imageSrc === '/images/products/olive-oil.jpg') {
+                            imageSrc = placeholderImage;
+                        }
+                        if (imageSrc === '/images/all/IMG-20251019-WA0015.jpg') {
+                            imageSrc = placeholderImage;
+                        }
+                        // Fix Hing and Garam Masala paths
+                        if (product.name && product.name.includes('Hing') && imageSrc !== '/images/products/Hing.png' && !imageSrc.includes('Hing.png')) {
+                            imageSrc = '/images/products/Hing.png';
+                        }
+                        if (product.name && product.name.includes('Garam Masala')) {
+                            if (imageSrc !== '/images/products/Garam Masala.jpeg' && 
+                                !imageSrc.includes('Garam%20Masala') && 
+                                !imageSrc.includes('Garam Masala') &&
+                                !imageSrc.startsWith('data:image')) {
+                                imageSrc = '/images/products/Garam Masala.jpeg';
+                            }
+                        }
+                        
+                        // For Next.js static export, we need to handle spaces in file names
+                        // Encode spaces in the entire path (but not for base64/data URLs)
+                        if (!imageSrc.startsWith('http') && !imageSrc.startsWith('data:image')) {
+                            // Replace all spaces with %20 in the path
+                            imageSrc = imageSrc.replace(/ /g, '%20');
+                        }
+                        
+                        // Also encode placeholder
+                        const placeholderEncoded = placeholderImage.replace(/ /g, '%20');
+                        
                             return (
                                 <img
                                     src={imageSrc}
                                     alt={product.name}
-                                    className="w-full h-full object-contain transition-all duration-700 max-w-[200px] max-h-[200px]"
-                                    style={{
-                                        width: '200px',
-                                        height: '200px',
-                                        objectFit: 'contain',
-                                    }}
-                                    onError={(e) => {
-                                        e.currentTarget.src = placeholderImage;
-                                    }}
-                                />
-                            );
-                        } else {
-                            return (
-                                <Image
-                                    src={imageSrc}
-                                    alt={product.name}
-                                    width={200}
-                                    height={200}
-                                    className="object-contain transition-all duration-500 group-hover/image:scale-105"
+                                className="w-full h-full object-contain transition-all duration-500 group-hover/image:scale-105"
                                     style={{
                                         maxWidth: '200px',
                                         maxHeight: '200px',
+                                    width: 'auto',
+                                    height: 'auto',
+                                    objectFit: 'contain',
                                     }}
-                                    unoptimized={imageSrc.startsWith('http')}
+                                loading="lazy"
                                     onError={(e) => {
-                                        e.currentTarget.src = placeholderImage;
+                                    // Fallback to placeholder immediately
+                                    if (!e.currentTarget.src.includes('products%20image%20available%20soon') && 
+                                        !e.currentTarget.src.includes('data:image')) {
+                                        e.currentTarget.src = placeholderEncoded;
+                                    }
                                     }}
                                 />
                             );
-                        }
                     })()}
                 </div>
+                </Link>
 
                 {/* NEW Badge - Top Left */}
                 {product.isNew && !product.isBestseller && (
@@ -176,11 +199,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 </div>
 
                 {/* Quick View Button - Center on Hover (Desktop Only) */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none hidden sm:flex">
-                    <button className="bg-white text-[#2D5016] px-4 py-2 rounded-md text-xs font-semibold shadow-lg hover:bg-[#2D5016] hover:text-white transition-all duration-200 transform scale-90 group-hover:scale-100 pointer-events-auto">
+                <Link href={`/products/${product.id}`} className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none hidden sm:flex">
+                    <span className="bg-white text-[#2D5016] px-4 py-2 rounded-md text-xs font-semibold shadow-lg hover:bg-[#2D5016] hover:text-white transition-all duration-200 transform scale-90 group-hover:scale-100 pointer-events-auto">
                         Quick View
-                    </button>
-                </div>
+                    </span>
+                </Link>
 
                 {/* Fast Delivery Badge - Bottom Left on Hover (Desktop Only) */}
                 <div className="absolute bottom-2 left-2 bg-[#232F3E] text-white px-2 py-0.5 rounded text-[9px] font-semibold shadow-md z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden sm:flex">
@@ -199,7 +222,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {/* Product Info - Compact Style */}
             <div className="p-2 sm:p-2.5 flex flex-col flex-grow relative bg-white z-10">
                 {/* Product Name - Compact */}
-                <Link href={`/products?id=${product.id}`}>
+                <Link href={`/products/${product.id}`}>
                     <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 line-clamp-2 min-h-[2rem] group-hover:text-[#2D5016] hover:text-[#2D5016] transition-colors duration-200 leading-tight cursor-pointer">
                         {product.name}
                     </h3>
@@ -210,7 +233,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     <div className="flex items-center">
                         {renderStars(product.rating)}
                     </div>
-                    <Link href={`/products?id=${product.id}#reviews`}>
+                    <Link href={`/products/${product.id}#reviews`}>
                         <span className="text-[9px] sm:text-[10px] text-[#2D5016] hover:text-[#D4AF37] hover:underline cursor-pointer font-medium">
                             ({product.reviews})
                         </span>

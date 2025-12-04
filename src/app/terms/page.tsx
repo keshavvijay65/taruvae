@@ -10,7 +10,7 @@ export default function TermsPage() {
             <Suspense fallback={<div className="h-20 bg-white"></div>}>
                 <Header />
             </Suspense>
-            <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl py-12 md:py-16">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl pt-20 sm:pt-24 pb-12 md:pb-16">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
                     <div className="mb-6">
                         <div className="inline-block bg-blue-50 border border-blue-200 rounded px-3 py-1 text-xs text-blue-700 mb-4">

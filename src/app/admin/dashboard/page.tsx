@@ -56,7 +56,7 @@ export default function AdminDashboard() {
             <Suspense fallback={<div className="h-20 bg-white"></div>}>
                 <Header />
             </Suspense>
-            <div className="py-8 md:py-12">
+            <div className="pt-20 sm:pt-24 pb-8 md:pb-12">
                 <div className="container mx-auto px-6 md:px-8 lg:px-10 max-w-7xl">
                     <div className="flex items-center justify-between mb-8">
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black" style={{ fontFamily: 'var(--font-playfair), serif' }}>
@@ -88,6 +88,26 @@ export default function AdminDashboard() {
                             </div>
                             <p className="text-gray-600 text-sm">
                                 Add, edit, or delete products. Manage categories, prices, and images.
+                            </p>
+                        </Link>
+
+                        {/* Blog Management */}
+                        <Link
+                            href="/admin/blogs"
+                            className="bg-white border-2 border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-lg hover:border-[#D4AF37] transition-all duration-300 group"
+                        >
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-12 h-12 bg-[#2D5016] rounded-lg flex items-center justify-center group-hover:bg-[#D4AF37] transition-colors">
+                                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-xl font-bold text-black group-hover:text-[#D4AF37] transition-colors">
+                                    Blog
+                                </h2>
+                            </div>
+                            <p className="text-gray-600 text-sm">
+                                Create and manage blog posts. Write articles, recipes, and health tips.
                             </p>
                         </Link>
 

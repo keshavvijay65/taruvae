@@ -12,7 +12,6 @@ export default function Header() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-    const [isMobileBlogsOpen, setIsMobileBlogsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [isScrolled, setIsScrolled] = useState(false);
     const { getTotalItems } = useCart();
@@ -307,7 +306,14 @@ export default function Header() {
                 <div className="border-t border-gray-100 lg:hidden bg-white">
                     <div className={`overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-screen pb-3' : 'max-h-0'}`}>
                         <nav className="pt-2">
-                            {productNavLinks.map((link) => (
+                            <Link
+                                href="/products"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="block py-2.5 px-4 text-[#2D5016] hover:bg-gray-50 font-semibold text-sm"
+                            >
+                                Products
+                            </Link>
+                            {productNavLinks.slice(1, 5).map((link) => (
                                 <Link
                                     key={link.label}
                                     href={getProductsHref(link.filter)}
@@ -317,23 +323,6 @@ export default function Header() {
                                     {link.label}
                                 </Link>
                             ))}
-                            {isAuthenticated ? (
-                                <Link
-                                    href="/account"
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="block py-2.5 px-4 text-[#2D5016] hover:bg-gray-50 font-medium text-sm"
-                                >
-                                    My Account
-                                </Link>
-                            ) : (
-                                <Link
-                                    href="/login"
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="block py-2.5 px-4 text-[#2D5016] hover:bg-gray-50 font-medium text-sm"
-                                >
-                                    Login / Register
-                                </Link>
-                            )}
                             <Link
                                 href="/orders"
                                 onClick={() => setIsMenuOpen(false)}
@@ -342,46 +331,12 @@ export default function Header() {
                                 My Orders
                             </Link>
                             <Link
-                                href="/wishlist"
+                                href="/blog"
                                 onClick={() => setIsMenuOpen(false)}
                                 className="block py-2.5 px-4 text-[#2D5016] hover:bg-gray-50 font-medium text-sm"
                             >
-                                Wishlist
+                                Blog
                             </Link>
-                            <div className="mt-1">
-                                <button
-                                    onClick={() => setIsMobileBlogsOpen(!isMobileBlogsOpen)}
-                                    className="w-full flex items-center justify-between py-2.5 px-4 text-[#2D5016] font-medium text-sm hover:bg-gray-50"
-                                >
-                                    Blogs
-                                    <svg
-                                        className={`w-4 h-4 transition-transform ${isMobileBlogsOpen ? 'rotate-180' : ''}`}
-                                        viewBox="0 0 20 20"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                    >
-                                        <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </button>
-                                {isMobileBlogsOpen && (
-                                    <div className="pl-6 border-l-2 border-gray-100">
-                                        {blogLinks.map((blog) => (
-                                            <Link
-                                                key={blog.href}
-                                                href={blog.href}
-                                                onClick={() => {
-                                                    setIsMenuOpen(false);
-                                                    setIsMobileBlogsOpen(false);
-                                                }}
-                                                className="flex items-center gap-2 py-2 text-[#2D5016] text-sm hover:text-[#D4AF37]"
-                                            >
-                                                {blog.label}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
                         </nav>
                     </div>
                 </div>
