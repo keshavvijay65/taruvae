@@ -320,6 +320,7 @@ export default function CheckoutPage() {
                     state: defaultAddress.state || '',
                     pincode: defaultAddress.pincode || '',
                     paymentMethod: prev.paymentMethod || 'cod',
+                    upiId: prev.upiId || '',
                 }));
             } else {
                 // Fill basic info from user account
@@ -525,9 +526,16 @@ export default function CheckoutPage() {
                         customer: orderData.customer,
                         total: orderData.total
                     });
-                    alert(`Order placed successfully!\nOrder ID: ${orderData.orderId}\nTotal: ₹${total}\n\nOrder has been saved to Firebase.`);
+                    setAlertModal({
+                        isOpen: true,
+                        title: 'Order Placed Successfully!',
+                        message: `Order ID: ${orderData.orderId}\nTotal: ₹${totalCost}\n\nOrder has been saved to Firebase.`,
+                        type: 'success',
+                    });
                     clearCart();
-                    router.push('/');
+                    setTimeout(() => {
+                        router.push('/');
+                    }, 2000);
                 } else {
                     throw new Error(result.message || 'Failed to store order');
                 }
@@ -544,9 +552,16 @@ export default function CheckoutPage() {
                     totalOrders: existingOrders.length
                 });
 
-                alert(`Order placed successfully!\nOrder ID: ${orderData.orderId}\nTotal: ₹${total}\n\nNote: Order saved locally.`);
+                setAlertModal({
+                    isOpen: true,
+                    title: 'Order Placed Successfully!',
+                    message: `Order ID: ${orderData.orderId}\nTotal: ₹${totalCost}\n\nNote: Order saved locally.`,
+                    type: 'success',
+                });
                 clearCart();
-                router.push('/');
+                setTimeout(() => {
+                    router.push('/');
+                }, 2000);
             }
         }
     };

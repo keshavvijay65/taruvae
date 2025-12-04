@@ -9,6 +9,23 @@ import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getAllProductsFromFirebase, subscribeToProducts, getAllCategoriesFromFirebase, subscribeToCategories, Category } from '@/lib/firebaseProducts';
+import type { Product as FirebaseProduct } from '@/lib/firebaseProducts';
+
+// Helper function to convert Firebase Product to CartContext Product
+function convertToCartProduct(firebaseProduct: FirebaseProduct): Product {
+    return {
+        id: typeof firebaseProduct.id === 'string' ? parseInt(firebaseProduct.id) || 0 : firebaseProduct.id,
+        name: firebaseProduct.name || '',
+        price: firebaseProduct.price || 0,
+        image: firebaseProduct.image || '',
+        rating: firebaseProduct.rating || 4.0,
+        reviews: 0, // Default reviews
+        inStock: firebaseProduct.stock !== undefined ? firebaseProduct.stock > 0 : true,
+        category: firebaseProduct.category || '',
+        size: firebaseProduct.weight || '',
+        description: firebaseProduct.description || '',
+    };
+}
 
 // Function to get all default products (same as admin panel)
 const getAllDefaultProducts = (): Product[] => {
@@ -241,8 +258,10 @@ function AllProductsContent() {
                 const firebaseProducts = await getAllProductsFromFirebase();
                 
                 if (firebaseProducts && firebaseProducts.length > 0) {
+                    // Convert Firebase Products to CartContext Products
+                    const cartProducts = firebaseProducts.map(convertToCartProduct);
                     // Check if products have old/wrong image paths and fix them
-                    const fixedProducts = firebaseProducts.map(product => {
+                    const fixedProducts = cartProducts.map(product => {
                         // Fix old image paths to correct ones
                         if (product.image === '/images/products/ghee.jpg') {
                             product.image = '/images/products/GHEE.png';
@@ -327,8 +346,10 @@ function AllProductsContent() {
         // Subscribe to real-time updates from Firebase
         const unsubscribe = subscribeToProducts((updatedProducts) => {
             if (updatedProducts && updatedProducts.length > 0) {
+                // Convert Firebase Products to CartContext Products
+                const cartProducts = updatedProducts.map(convertToCartProduct);
                 // Fix old image paths in real-time updates too
-                const fixedProducts = updatedProducts.map(product => {
+                const fixedProducts = cartProducts.map(product => {
                     if (product.image === '/images/products/ghee.jpg') {
                         product.image = '/images/products/GHEE.png';
                     }

@@ -6,6 +6,24 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart, Product } from '@/context/CartContext';
 import { subscribeToProducts, getProductReviewsFromFirebase, subscribeToProductReviews, saveReviewToFirebase, ProductReview } from '@/lib/firebaseProducts';
+import type { Product as FirebaseProduct } from '@/lib/firebaseProducts';
+
+// Helper function to convert Firebase Product to CartContext Product
+function convertToCartProduct(firebaseProduct: FirebaseProduct): Product {
+    return {
+        id: typeof firebaseProduct.id === 'string' ? parseInt(firebaseProduct.id) || 0 : firebaseProduct.id,
+        name: firebaseProduct.name || '',
+        price: firebaseProduct.price || 0,
+        image: firebaseProduct.image || '',
+        rating: firebaseProduct.rating || 4.0,
+        reviews: 0, // Default reviews
+        inStock: firebaseProduct.stock !== undefined ? firebaseProduct.stock > 0 : true,
+        category: firebaseProduct.category || '',
+        size: firebaseProduct.weight || '',
+        description: firebaseProduct.description || '',
+    };
+}
+import AlertModal from '@/components/AlertModal';
 
 // Common FAQs for all products
 const COMMON_FAQS = [
@@ -64,6 +82,12 @@ export default function ProductDetailClient({ product: initialProduct, products:
     // Review states
     const [reviews, setReviews] = useState<ProductReview[]>([]);
     const [showReviewForm, setShowReviewForm] = useState(false);
+    const [alertModal, setAlertModal] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'info',
+    });
     const [reviewForm, setReviewForm] = useState({
         userName: '',
         rating: 5,
@@ -101,21 +125,16 @@ export default function ProductDetailClient({ product: initialProduct, products:
         if (!productId) return;
 
         const unsubscribe = subscribeToProducts((updatedProducts) => {
-            setProducts(updatedProducts);
-            const foundProduct = updatedProducts.find(p => p.id === productId);
+            // Convert Firebase Products to CartContext Products
+            const cartProducts = updatedProducts.map(convertToCartProduct);
+            setProducts(cartProducts);
+            const foundProduct = cartProducts.find(p => p.id === productId);
             if (foundProduct) {
                 // Fix image paths in real-time updates
-                const fixedProduct = { ...foundProduct };
-                if (foundProduct.name && foundProduct.name.includes('Hing') && foundProduct.image !== '/images/products/Hing.png') {
-                    fixedProduct.image = '/images/products/Hing.png';
-                }
-                if (foundProduct.name && foundProduct.name.includes('Garam Masala')) {
-                    if (foundProduct.image !== '/images/products/Garam Masala.jpeg' && 
-                        !foundProduct.image.includes('Garam%20Masala') && 
-                        !foundProduct.image.includes('Garam Masala')) {
-                        fixedProduct.image = '/images/products/Garam Masala.jpeg';
-                    }
-                }
+                const fixedProduct = {
+                    ...foundProduct,
+                    image: fixProductImage(foundProduct.image)
+                };
                 setProduct(fixedProduct);
             }
         });
@@ -184,7 +203,12 @@ export default function ProductDetailClient({ product: initialProduct, products:
             setShowReviewForm(false);
         } catch (error) {
             console.error('Error submitting review:', error);
-            alert('Failed to submit review. Please try again.');
+            setAlertModal({
+                isOpen: true,
+                title: 'Error',
+                message: 'Failed to submit review. Please try again.',
+                type: 'error',
+            });
         } finally {
             setSubmittingReview(false);
         }
@@ -920,6 +944,15 @@ export default function ProductDetailClient({ product: initialProduct, products:
                     </div>
                 </div>
             )}
+
+            {/* Alert Modal */}
+            <AlertModal
+                isOpen={alertModal.isOpen}
+                title={alertModal.title}
+                message={alertModal.message}
+                type={alertModal.type}
+                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+            />
         </>
     );
 }

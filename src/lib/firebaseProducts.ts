@@ -1,6 +1,20 @@
+export interface Product {
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    description: string;
+    category: string;
+    stock?: number;
+    weight?: string;
+    rating?: number;
+    upiId?: string;
+}
+
+
 import { ref, set, get, onValue, off, DataSnapshot } from 'firebase/database';
 import { database } from './firebase';
-import { Product } from '@/context/CartContext';
+
 
 // Helper function to remove undefined values from objects (Firebase doesn't allow undefined)
 function removeUndefinedValues(obj: any): any {
@@ -34,11 +48,11 @@ export async function saveProductsToFirebase(products: Product[]): Promise<{ suc
 
         const productsRef = ref(database, 'products');
         await set(productsRef, cleanedProducts);
-        
+
         // Also save to localStorage as backup
         localStorage.setItem('taruvae-admin-products', JSON.stringify(products));
         window.dispatchEvent(new Event('taruvae-products-updated'));
-        
+
         return { success: true, message: 'Products saved to Firebase successfully' };
     } catch (error: any) {
         console.error('Error saving products to Firebase:', error);
@@ -64,7 +78,7 @@ export async function getAllProductsFromFirebase(): Promise<Product[]> {
 
         const productsRef = ref(database, 'products');
         const snapshot = await get(productsRef);
-        
+
         if (snapshot.exists()) {
             const productsData = snapshot.val();
             // If it's an array, return it directly
@@ -74,13 +88,13 @@ export async function getAllProductsFromFirebase(): Promise<Product[]> {
             // If it's an object, convert to array
             return Object.values(productsData);
         }
-        
+
         // If no products in Firebase, check localStorage
         const savedProducts = localStorage.getItem('taruvae-admin-products');
         if (savedProducts) {
             return JSON.parse(savedProducts);
         }
-        
+
         return [];
     } catch (error: any) {
         console.error('Error fetching products from Firebase:', error);
@@ -141,12 +155,12 @@ export function subscribeToProducts(callback: (products: Product[]) => void): ()
         }
 
         const productsRef = ref(database, 'products');
-        
+
         const handleSnapshot = (snapshot: DataSnapshot) => {
             if (snapshot.exists()) {
                 const productsData = snapshot.val();
                 let products: Product[];
-                
+
                 // If it's an array, use it directly
                 if (Array.isArray(productsData)) {
                     products = productsData;
@@ -154,7 +168,7 @@ export function subscribeToProducts(callback: (products: Product[]) => void): ()
                     // If it's an object, convert to array
                     products = Object.values(productsData);
                 }
-                
+
                 // Also update localStorage as backup
                 localStorage.setItem('taruvae-admin-products', JSON.stringify(products));
                 callback(products);
@@ -185,7 +199,7 @@ export function subscribeToProducts(callback: (products: Product[]) => void): ()
     } catch (error: any) {
         console.error('Error setting up products subscription:', error);
         // Fallback: return empty unsubscribe function
-        return () => {};
+        return () => { };
     }
 }
 
@@ -220,11 +234,11 @@ export async function saveCategoriesToFirebase(categories: Category[]): Promise<
 
         const categoriesRef = ref(database, 'categories');
         await set(categoriesRef, categories);
-        
+
         // Also save to localStorage as backup
         localStorage.setItem('taruvae-categories', JSON.stringify(categories));
         window.dispatchEvent(new Event('taruvae-categories-updated'));
-        
+
         return { success: true, message: 'Categories saved to Firebase successfully' };
     } catch (error: any) {
         console.error('Error saving categories to Firebase:', error);
@@ -251,7 +265,7 @@ export async function getAllCategoriesFromFirebase(): Promise<Category[]> {
 
         const categoriesRef = ref(database, 'categories');
         const snapshot = await get(categoriesRef);
-        
+
         if (snapshot.exists()) {
             const categoriesData = snapshot.val();
             // If it's an array, return it directly
@@ -261,13 +275,13 @@ export async function getAllCategoriesFromFirebase(): Promise<Category[]> {
             // If it's an object, convert to array
             return Object.values(categoriesData);
         }
-        
+
         // If no categories in Firebase, check localStorage
         const savedCategories = localStorage.getItem('taruvae-categories');
         if (savedCategories) {
             return JSON.parse(savedCategories);
         }
-        
+
         // Return default categories
         return DEFAULT_CATEGORIES;
     } catch (error: any) {
@@ -332,12 +346,12 @@ export function subscribeToCategories(callback: (categories: Category[]) => void
         }
 
         const categoriesRef = ref(database, 'categories');
-        
+
         const handleSnapshot = (snapshot: DataSnapshot) => {
             if (snapshot.exists()) {
                 const categoriesData = snapshot.val();
                 let categories: Category[];
-                
+
                 // If it's an array, use it directly
                 if (Array.isArray(categoriesData)) {
                     categories = categoriesData;
@@ -345,7 +359,7 @@ export function subscribeToCategories(callback: (categories: Category[]) => void
                     // If it's an object, convert to array
                     categories = Object.values(categoriesData);
                 }
-                
+
                 // Also update localStorage as backup
                 localStorage.setItem('taruvae-categories', JSON.stringify(categories));
                 callback(categories);
@@ -376,7 +390,7 @@ export function subscribeToCategories(callback: (categories: Category[]) => void
     } catch (error: any) {
         console.error('Error setting up categories subscription:', error);
         // Fallback: return empty unsubscribe function
-        return () => {};
+        return () => { };
     }
 }
 
@@ -407,20 +421,20 @@ export async function saveReviewToFirebase(review: ProductReview): Promise<{ suc
 
         const reviewsRef = ref(database, `reviews/${review.productId}`);
         const snapshot = await get(reviewsRef);
-        
+
         let reviews: ProductReview[] = [];
         if (snapshot.exists()) {
             const reviewsData = snapshot.val();
             reviews = Array.isArray(reviewsData) ? reviewsData : Object.values(reviewsData);
         }
-        
+
         reviews.push(review);
         await set(reviewsRef, reviews);
-        
+
         // Also save to localStorage as backup
         localStorage.setItem(`taruvae-reviews-${review.productId}`, JSON.stringify(reviews));
         window.dispatchEvent(new Event(`taruvae-reviews-updated-${review.productId}`));
-        
+
         return { success: true, message: 'Review saved successfully' };
     } catch (error: any) {
         console.error('Error saving review to Firebase:', error);
@@ -449,20 +463,20 @@ export async function getProductReviewsFromFirebase(productId: number): Promise<
 
         const reviewsRef = ref(database, `reviews/${productId}`);
         const snapshot = await get(reviewsRef);
-        
+
         if (snapshot.exists()) {
             const reviewsData = snapshot.val();
             const reviews = Array.isArray(reviewsData) ? reviewsData : Object.values(reviewsData);
             // Sort by date (newest first)
             return reviews.sort((a: ProductReview, b: ProductReview) => b.createdAt - a.createdAt);
         }
-        
+
         // If no reviews in Firebase, check localStorage
         const savedReviews = localStorage.getItem(`taruvae-reviews-${productId}`);
         if (savedReviews) {
             return JSON.parse(savedReviews);
         }
-        
+
         return [];
     } catch (error: any) {
         console.error('Error fetching reviews from Firebase:', error);
@@ -526,21 +540,21 @@ export function subscribeToProductReviews(productId: number, callback: (reviews:
         }
 
         const reviewsRef = ref(database, `reviews/${productId}`);
-        
+
         const handleSnapshot = (snapshot: DataSnapshot) => {
             if (snapshot.exists()) {
                 const reviewsData = snapshot.val();
                 let reviews: ProductReview[];
-                
+
                 if (Array.isArray(reviewsData)) {
                     reviews = reviewsData;
                 } else {
                     reviews = Object.values(reviewsData);
                 }
-                
+
                 // Sort by date (newest first)
                 reviews.sort((a, b) => b.createdAt - a.createdAt);
-                
+
                 // Also update localStorage as backup
                 localStorage.setItem(`taruvae-reviews-${productId}`, JSON.stringify(reviews));
                 callback(reviews);
@@ -570,7 +584,7 @@ export function subscribeToProductReviews(productId: number, callback: (reviews:
         };
     } catch (error: any) {
         console.error('Error setting up reviews subscription:', error);
-        return () => {};
+        return () => { };
     }
 }
 

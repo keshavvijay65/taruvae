@@ -11,16 +11,50 @@ import ConfirmModal from '@/components/ConfirmModal';
 import RichTextEditor from '@/components/RichTextEditor';
 import { Product } from '@/context/CartContext';
 import { saveProductsToFirebase, getAllProductsFromFirebase, getAllCategoriesFromFirebase, saveCategoriesToFirebase, subscribeToCategories, Category } from '@/lib/firebaseProducts';
+import type { Product as FirebaseProduct } from '@/lib/firebaseProducts';
 
 // Categories will be loaded dynamically from Firebase
 
 // Placeholder image for products without images
 const PLACEHOLDER_IMAGE = '/images/all/products image available soon.png';
 
+// Helper function to convert CartContext Product to Firebase Product
+const convertToFirebaseProduct = (product: Product): FirebaseProduct => {
+    return {
+        id: product.id.toString(),
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        description: product.description || '',
+        category: product.category || '',
+        stock: product.inStock ? 100 : 0,
+        weight: product.size,
+        rating: product.rating,
+    };
+};
+
+// Helper function to convert Firebase Product to CartContext Product
+const convertToCartProduct = (firebaseProduct: FirebaseProduct): Product => {
+    return {
+        id: typeof firebaseProduct.id === 'string' ? parseInt(firebaseProduct.id) || 0 : firebaseProduct.id,
+        name: firebaseProduct.name || '',
+        price: firebaseProduct.price || 0,
+        image: firebaseProduct.image || '',
+        rating: firebaseProduct.rating || 4.0,
+        reviews: 0, // Default reviews
+        inStock: firebaseProduct.stock !== undefined ? firebaseProduct.stock > 0 : true,
+        category: firebaseProduct.category || '',
+        size: firebaseProduct.weight || '',
+        description: firebaseProduct.description || '',
+    };
+};
+
 // Helper function to save products to Firebase and localStorage
 const saveProductsToStorage = async (products: Product[]) => {
+    // Convert CartContext Products to Firebase Products
+    const firebaseProducts = products.map(convertToFirebaseProduct);
     // Save to Firebase (this also saves to localStorage as backup)
-    await saveProductsToFirebase(products);
+    await saveProductsToFirebase(firebaseProducts);
 };
 
 // Function to get all default products
@@ -31,79 +65,79 @@ const getAllDefaultProducts = (): Product[] => {
         { id: 2, name: 'Cold Pressed Peanut Oil', price: 250, size: '500 ml', image: '/images/products/groundnut oi.jpg', rating: 4.5, reviews: 95, inStock: true, category: 'oil' },
         { id: 3, name: 'Cold Pressed Peanut Oil', price: 140, size: '250 ml', image: '/images/products/groundnut oi.jpg', rating: 4.5, reviews: 78, inStock: true, category: 'oil' },
         { id: 4, name: 'Cold Pressed Peanut Oil', price: 70, size: '100 ml', image: '/images/products/groundnut oi.jpg', rating: 4.5, reviews: 45, inStock: true, category: 'oil' },
-        
+
         // Cold Pressed Mustard Oil
         { id: 5, name: 'Cold Pressed Mustard Oil', price: 460, size: '1000 ml', image: '/images/products/mustard oil.jpg', rating: 4.6, reviews: 145, inStock: true, category: 'oil' },
         { id: 6, name: 'Cold Pressed Mustard Oil', price: 260, size: '500 ml', image: '/images/products/mustard oil.jpg', rating: 4.6, reviews: 112, inStock: true, category: 'oil' },
         { id: 7, name: 'Cold Pressed Mustard Oil', price: 150, size: '250 ml', image: '/images/products/mustard oil.jpg', rating: 4.6, reviews: 89, inStock: true, category: 'oil' },
         { id: 8, name: 'Cold Pressed Mustard Oil', price: 80, size: '100 ml', image: '/images/products/mustard oil.jpg', rating: 4.6, reviews: 52, inStock: true, category: 'oil' },
-        
+
         // Cold Pressed Sunflower Oil
         { id: 9, name: 'Cold Pressed Sunflower Oil', price: 450, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 167, inStock: true, category: 'oil' },
         { id: 10, name: 'Cold Pressed Sunflower Oil', price: 260, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 134, inStock: true, category: 'oil' },
         { id: 11, name: 'Cold Pressed Sunflower Oil', price: 150, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 98, inStock: true, category: 'oil' },
         { id: 12, name: 'Cold Pressed Sunflower Oil', price: 80, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 61, inStock: true, category: 'oil' },
-        
+
         // Cold Pressed Coconut Oil
         { id: 13, name: 'Cold Pressed Coconut Oil', price: 590, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 189, inStock: true, category: 'oil' },
         { id: 14, name: 'Cold Pressed Coconut Oil', price: 320, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 156, inStock: true, category: 'oil' },
         { id: 15, name: 'Cold Pressed Coconut Oil', price: 180, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 123, inStock: true, category: 'oil' },
         { id: 16, name: 'Cold Pressed Coconut Oil', price: 90, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 87, inStock: true, category: 'oil' },
-        
+
         // Cold Pressed Sesame Oil
         { id: 17, name: 'Cold Pressed Sesame Oil', price: 510, size: '1000 ml', image: '/images/products/seasame oil.jpg', rating: 4.7, reviews: 178, inStock: true, category: 'oil' },
         { id: 18, name: 'Cold Pressed Sesame Oil', price: 280, size: '500 ml', image: '/images/products/seasame oil.jpg', rating: 4.7, reviews: 145, inStock: true, category: 'oil' },
         { id: 19, name: 'Cold Pressed Sesame Oil', price: 160, size: '250 ml', image: '/images/products/seasame oil.jpg', rating: 4.7, reviews: 112, inStock: true, category: 'oil' },
         { id: 20, name: 'Cold Pressed Sesame Oil', price: 85, size: '100 ml', image: '/images/products/seasame oil.jpg', rating: 4.7, reviews: 78, inStock: true, category: 'oil' },
-        
+
         // Virgin Coconut Oil
         { id: 21, name: 'Virgin Coconut Oil', price: 1290, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 203, inStock: true, category: 'oil', isBestseller: true },
         { id: 22, name: 'Virgin Coconut Oil', price: 680, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 178, inStock: true, category: 'oil' },
         { id: 23, name: 'Virgin Coconut Oil', price: 380, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 145, inStock: true, category: 'oil' },
         { id: 24, name: 'Virgin Coconut Oil', price: 190, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.8, reviews: 112, inStock: true, category: 'oil' },
-        
+
         // Cold Pressed Almond Oil
         { id: 25, name: 'Cold Pressed Almond Oil', price: 1200, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 192, inStock: true, category: 'oil', isBestseller: true },
         { id: 26, name: 'Cold Pressed Almond Oil', price: 650, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 167, inStock: true, category: 'oil' },
         { id: 27, name: 'Cold Pressed Almond Oil', price: 360, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 134, inStock: true, category: 'oil' },
         { id: 28, name: 'Cold Pressed Almond Oil', price: 180, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.7, reviews: 98, inStock: true, category: 'oil' },
-        
+
         // Cold Pressed Olive Oil
         { id: 29, name: 'Cold Pressed Olive Oil', price: 1810, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 156, inStock: true, category: 'oil', isBestseller: true },
         { id: 30, name: 'Cold Pressed Olive Oil', price: 950, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 134, inStock: true, category: 'oil' },
         { id: 31, name: 'Cold Pressed Olive Oil', price: 520, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 112, inStock: true, category: 'oil' },
         { id: 32, name: 'Cold Pressed Olive Oil', price: 260, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 89, inStock: true, category: 'oil' },
-        
+
         // Cold Pressed Castor Oil
         { id: 33, name: 'Cold Pressed Castor Oil', price: 420, size: '1000 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 134, inStock: true, category: 'oil' },
         { id: 34, name: 'Cold Pressed Castor Oil', price: 240, size: '500 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 112, inStock: true, category: 'oil' },
         { id: 35, name: 'Cold Pressed Castor Oil', price: 140, size: '250 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 89, inStock: true, category: 'oil' },
         { id: 36, name: 'Cold Pressed Castor Oil', price: 70, size: '100 ml', image: '/images/all/products image available soon.png', rating: 4.4, reviews: 67, inStock: true, category: 'oil' },
-        
+
         // Premium Desi Cow Bilona Ghee
         { id: 37, name: 'Premium Desi Cow Bilona Ghee', price: 1450, size: '1 KG', image: '/images/products/GHEE.png', rating: 4.8, reviews: 256, inStock: true, category: 'ghee', isBestseller: true },
         { id: 38, name: 'Premium Desi Cow Bilona Ghee', price: 750, size: '500 GM', image: '/images/products/GHEE.png', rating: 4.8, reviews: 223, inStock: true, category: 'ghee' },
         { id: 39, name: 'Premium Desi Cow Bilona Ghee', price: 320, size: '200 GM', image: '/images/products/GHEE.png', rating: 4.8, reviews: 189, inStock: true, category: 'ghee' },
-        
+
         // Pure Hing (Asafoetida)
         { id: 40, name: 'Pure Hing (Asafoetida)', price: 280, size: '50 GM', image: '/images/products/Hing.png', rating: 4.6, reviews: 145, inStock: true, category: 'superfoods' },
         { id: 41, name: 'Pure Hing (Asafoetida)', price: 150, size: '25 GM', image: '/images/products/Hing.png', rating: 4.6, reviews: 112, inStock: true, category: 'superfoods' },
         { id: 42, name: 'Pure Hing (Asafoetida)', price: 80, size: '10 GM', image: '/images/products/Hing.png', rating: 4.6, reviews: 89, inStock: true, category: 'superfoods' },
-        
+
         // Jeeravan Masala
         { id: 43, name: 'Jeeravan Masala', price: 180, size: '250 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 167, inStock: true, category: 'superfoods' },
         { id: 44, name: 'Jeeravan Masala', price: 100, size: '100 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 134, inStock: true, category: 'superfoods' },
         { id: 45, name: 'Jeeravan Masala', price: 60, size: '50 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 112, inStock: true, category: 'superfoods' },
         { id: 46, name: 'Jeeravan Masala', price: 35, size: '25 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 89, inStock: true, category: 'superfoods' },
         { id: 47, name: 'Jeeravan Masala', price: 20, size: '10 GM', image: '/images/all/products image available soon.png', rating: 4.5, reviews: 67, inStock: true, category: 'superfoods' },
-        
+
         // Garam Masala
         { id: 48, name: 'Garam Masala', price: 200, size: '250 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 189, inStock: true, category: 'superfoods' },
         { id: 49, name: 'Garam Masala', price: 110, size: '100 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 156, inStock: true, category: 'superfoods' },
         { id: 50, name: 'Garam Masala', price: 65, size: '50 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 123, inStock: true, category: 'superfoods' },
         { id: 51, name: 'Garam Masala', price: 38, size: '25 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 98, inStock: true, category: 'superfoods' },
         { id: 52, name: 'Garam Masala', price: 22, size: '10 GM', image: '/images/products/Garam Masala.jpeg', rating: 4.7, reviews: 78, inStock: true, category: 'superfoods' },
-        
+
         // 100% Arabica Coffee Powder
         { id: 53, name: '100% Arabica Coffee Powder', price: 450, size: '250 GM', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 178, inStock: true, category: 'superfoods' },
         { id: 54, name: '100% Arabica Coffee Powder', price: 250, size: '100 GM', image: '/images/all/products image available soon.png', rating: 4.6, reviews: 145, inStock: true, category: 'superfoods' },
@@ -122,14 +156,14 @@ export default function AdminProductsPage() {
     const [showCategoryForm, setShowCategoryForm] = useState(false);
     const [categoryFormData, setCategoryFormData] = useState({ value: '', label: '' });
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-    
+
     // Toast notification state
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning'; isVisible: boolean }>({
         message: '',
         type: 'success',
         isVisible: false,
     });
-    
+
     // Confirmation modal state
     const [confirmModal, setConfirmModal] = useState<{
         isOpen: boolean;
@@ -141,14 +175,14 @@ export default function AdminProductsPage() {
         isOpen: false,
         title: '',
         message: '',
-        onConfirm: () => {},
+        onConfirm: () => { },
         type: 'danger',
     });
-    
+
     const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'success') => {
         setToast({ message, type, isVisible: true });
     };
-    
+
     const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'warning' | 'info' = 'danger') => {
         setConfirmModal({ isOpen: true, title, message, onConfirm, type });
     };
@@ -228,31 +262,43 @@ export default function AdminProductsPage() {
     const loadProducts = async () => {
         try {
             // First try to load from Firebase
-            let loadedProducts = await getAllProductsFromFirebase();
-            
+            let firebaseProducts = await getAllProductsFromFirebase();
+            // Convert Firebase Products to CartContext Products
+            let loadedProducts: Product[] = firebaseProducts.map(convertToCartProduct);
+
             // Check localStorage for existing products (migration scenario)
             const localProductsStr = localStorage.getItem('taruvae-admin-products');
             let localProducts: Product[] = [];
             if (localProductsStr) {
                 try {
-                    localProducts = JSON.parse(localProductsStr);
+                    const parsed = JSON.parse(localProductsStr);
+                    // Check if parsed products are Firebase format or CartContext format
+                    if (parsed.length > 0) {
+                        if (typeof parsed[0].id === 'string') {
+                            // Firebase format - convert
+                            localProducts = parsed.map(convertToCartProduct);
+                        } else {
+                            // CartContext format - use directly
+                            localProducts = parsed;
+                        }
+                    }
                 } catch (e) {
                     console.error('Error parsing localStorage products:', e);
                 }
             }
-            
+
             // Migration logic: If localStorage has products and Firebase is empty or has only defaults
             // Migrate localStorage data to Firebase
             if (localProducts && localProducts.length > 0) {
                 const defaultProducts = getAllDefaultProducts();
                 const defaultProductIds = new Set(defaultProducts.map(p => p.id));
-                
+
                 // Check if Firebase has only default products (or is empty)
-                const firebaseHasOnlyDefaults = !loadedProducts || loadedProducts.length === 0 || 
-                    loadedProducts.every(p => defaultProductIds.has(p.id));
-                
+                const firebaseHasOnlyDefaults = !loadedProducts || loadedProducts.length === 0 ||
+                    loadedProducts.every(p => defaultProductIds.has(Number(p.id)));
+
                 // If localStorage has more products than defaults, migrate to Firebase
-                if (localProducts.length > defaultProducts.length || 
+                if (localProducts.length > defaultProducts.length ||
                     (firebaseHasOnlyDefaults && localProducts.length > 0)) {
                     console.log('Migrating products from localStorage to Firebase...');
                     loadedProducts = localProducts;
@@ -261,24 +307,24 @@ export default function AdminProductsPage() {
                     showToast(`Migrated ${localProducts.length} products to Firebase!`, 'success');
                 }
             }
-            
+
             // If no products in Firebase and no localStorage, use defaults
             if (!loadedProducts || loadedProducts.length === 0) {
                 loadedProducts = getAllDefaultProducts();
                 // Save defaults to Firebase
                 await saveProductsToStorage(loadedProducts);
             }
-            
+
             // Auto-mark products with price > 999 as bestseller
             const updatedProducts = loadedProducts.map((product: Product) => ({
                 ...product,
                 isBestseller: product.price > 999 ? true : (product.isBestseller || false),
             }));
-            
+
             setProducts(updatedProducts);
-            
+
             // Update Firebase with bestseller flags if they changed
-            const hasChanges = updatedProducts.some((p, i) => 
+            const hasChanges = updatedProducts.some((p, i) =>
                 p.isBestseller !== loadedProducts[i]?.isBestseller
             );
             if (hasChanges) {
@@ -337,7 +383,7 @@ export default function AdminProductsPage() {
 
     const handleAddProduct = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Validate required fields (Image is optional, will use placeholder)
         if (!formData.name.trim() || !formData.price.trim()) {
             showToast('Please fill in all required fields (Name, Price)', 'error');
@@ -345,15 +391,15 @@ export default function AdminProductsPage() {
         }
 
         const price = parseFloat(formData.price);
-        
+
         // Parse features and benefits from comma-separated strings
-        const features = formData.features.trim() 
+        const features = formData.features.trim()
             ? formData.features.split(',').map(f => f.trim()).filter(f => f.length > 0)
             : undefined;
         const benefits = formData.benefits.trim()
             ? formData.benefits.split(',').map(b => b.trim()).filter(b => b.length > 0)
             : undefined;
-        
+
         const newProduct: Product = {
             id: Date.now(),
             name: formData.name.trim(),
@@ -375,17 +421,17 @@ export default function AdminProductsPage() {
             features: features && features.length > 0 ? features : undefined,
             benefits: benefits && benefits.length > 0 ? benefits : undefined,
         };
-        
+
         // Use functional update to ensure we have the latest products state
         setProducts(currentProducts => {
             const updatedProducts = [...currentProducts, newProduct];
             saveProductsToStorage(updatedProducts);
             return updatedProducts;
         });
-        
+
         resetForm();
         setShowAddForm(false);
-        
+
         showToast('Product added successfully!', 'success');
     };
 
@@ -422,15 +468,15 @@ export default function AdminProductsPage() {
 
     const handleUpdateProduct = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Store editingProduct in a local variable to avoid state issues
         const productToEdit = editingProduct;
-        
+
         if (!productToEdit) {
             showToast('No product selected for editing', 'error');
             return;
         }
-        
+
         // Validate required fields (Image is optional, will use placeholder)
         if (!formData.name.trim() || !formData.price.trim()) {
             showToast('Please fill in all required fields (Name, Price)', 'error');
@@ -438,15 +484,15 @@ export default function AdminProductsPage() {
         }
 
         const price = parseFloat(formData.price);
-        
+
         // Parse features and benefits from comma-separated strings
-        const features = formData.features.trim() 
+        const features = formData.features.trim()
             ? formData.features.split(',').map(f => f.trim()).filter(f => f.length > 0)
             : undefined;
         const benefits = formData.benefits.trim()
             ? formData.benefits.split(',').map(b => b.trim()).filter(b => b.length > 0)
             : undefined;
-        
+
         const updatedProduct: Product = {
             id: productToEdit.id,
             name: formData.name.trim(),
@@ -473,18 +519,18 @@ export default function AdminProductsPage() {
             const updatedProducts = currentProducts.map(p =>
                 p.id === productToEdit.id ? updatedProduct : p
             );
-            
+
             // Save to Firebase
             saveProductsToStorage(updatedProducts);
-            
+
             return updatedProducts;
         });
-        
+
         // Reset form and close
         resetForm();
         setShowAddForm(false);
         setEditingProduct(null);
-        
+
         showToast('Product updated successfully!', 'success');
     };
 
@@ -514,15 +560,15 @@ export default function AdminProductsPage() {
                 showToast('Please select a valid image file', 'error');
                 return;
             }
-            
+
             // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showToast('Image size should be less than 5MB', 'error');
                 return;
             }
-            
+
             setImageFile(file);
-            
+
             // Create preview
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -572,7 +618,7 @@ export default function AdminProductsPage() {
 
     const handleAddCategory = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!categoryFormData.value.trim() || !categoryFormData.label.trim()) {
             showToast('Please fill in both category value and label', 'error');
             return;
@@ -597,7 +643,7 @@ export default function AdminProductsPage() {
         const updatedCategories = [...categories, newCategory];
         await saveCategoriesToFirebase(updatedCategories);
         setCategories(updatedCategories);
-        
+
         setCategoryFormData({ value: '', label: '' });
         setShowCategoryForm(false);
         showToast('Category added successfully!', 'success');
@@ -611,7 +657,7 @@ export default function AdminProductsPage() {
 
     const handleUpdateCategory = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!categoryFormData.value.trim() || !categoryFormData.label.trim()) {
             showToast('Please fill in both category value and label', 'error');
             return;
@@ -636,7 +682,7 @@ export default function AdminProductsPage() {
 
         await saveCategoriesToFirebase(updatedCategories);
         setCategories(updatedCategories);
-        
+
         // Update products with this category if value changed
         if (categoryValue !== editingCategory.value) {
             const updatedProducts = products.map(product =>
@@ -660,7 +706,7 @@ export default function AdminProductsPage() {
 
         // Check if any products use this category
         const productsWithCategory = products.filter(p => p.category === category.value);
-        
+
         if (productsWithCategory.length > 0) {
             showConfirm(
                 'Cannot Delete Category',
@@ -763,379 +809,378 @@ export default function AdminProductsPage() {
                                 </p>
                             </div>
                             <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Product Name <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        placeholder="Enter product name"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Category <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="flex gap-2">
-                                        <select
-                                            value={formData.category}
-                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        >
-                                            {categories.map(cat => (
-                                                <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                            ))}
-                                        </select>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setCategoryFormData({ value: '', label: '' });
-                                                setEditingCategory(null);
-                                                setShowCategoryForm(!showCategoryForm);
-                                                setTimeout(() => {
-                                                    if (!showCategoryForm) {
-                                                        const categoryForm = document.querySelector('[data-category-form]');
-                                                        if (categoryForm) {
-                                                            categoryForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                                        }
-                                                    }
-                                                }, 100);
-                                            }}
-                                            className="px-5 py-3 bg-[#2D5016] text-white rounded-lg font-medium hover:bg-[#4A7C2A] transition-colors whitespace-nowrap shadow-sm"
-                                            title="Manage Categories"
-                                        >
-                                            {showCategoryForm ? '✕' : '+ Category'}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Price (₹) <span className="text-red-500">*</span>
-                                        {formData.price && parseFloat(formData.price) > 999 && (
-                                            <span className="ml-2 text-xs text-[#FF6F00] font-semibold">(Will be marked as Bestseller)</span>
-                                        )}
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={formData.price}
-                                        onChange={(e) => {
-                                            const price = e.target.value;
-                                            setFormData({ 
-                                                ...formData, 
-                                                price,
-                                                // Auto-check bestseller if price > 999
-                                                isBestseller: price && parseFloat(price) > 999 ? true : formData.isBestseller
-                                            });
-                                        }}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        placeholder="299"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Original Price (₹)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={formData.originalPrice}
-                                        onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        placeholder="499"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Discount (%)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={formData.discount}
-                                        onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        placeholder="50"
-                                    />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Product Image <span className="text-gray-400 text-xs font-normal">(Optional - placeholder will be used if empty)</span>
-                                    </label>
-                                    
-                                    {/* Image Upload Option */}
-                                    <div className="mb-3">
-                                        <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                            Upload Image File
-                                        </label>
-                                        <div className="flex items-center gap-3">
-                                            <label className="cursor-pointer inline-flex items-center px-4 py-2.5 bg-[#2D5016] text-white rounded-lg hover:bg-[#4A7C2A] transition-colors font-medium text-sm">
-                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                Choose Image
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={handleImageUpload}
-                                                    className="hidden"
-                                                />
-                                            </label>
-                                            {imageFile && (
-                                                <span className="text-sm text-gray-600">
-                                                    {imageFile.name}
-                                                </span>
-                                            )}
-                                            {imagePreview && (
-                                                <button
-                                                    type="button"
-                                                    onClick={handleRemoveImage}
-                                                    className="text-red-600 hover:text-red-700 text-sm font-medium"
-                                                >
-                                                    Remove
-                                                </button>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-gray-500 mt-1.5">Max size: 5MB | Formats: JPG, PNG, GIF, WebP</p>
-                                    </div>
-
-                                    {/* OR Divider */}
-                                    <div className="relative my-4">
-                                        <div className="absolute inset-0 flex items-center">
-                                            <div className="w-full border-t border-gray-300"></div>
-                                        </div>
-                                        <div className="relative flex justify-center text-sm">
-                                            <span className="px-2 bg-white text-gray-500">OR</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Image URL Input */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                            Enter Image URL
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Product Name <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="text"
-                                            value={formData.image.startsWith('data:image/') ? '' : formData.image}
-                                            onChange={(e) => {
-                                                setFormData({ ...formData, image: e.target.value });
-                                                if (e.target.value) {
-                                                    setImagePreview(e.target.value);
-                                                } else {
-                                                    setImagePreview(null);
-                                                }
-                                                setImageFile(null);
-                                            }}
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                            placeholder="/images/products/product.jpg"
+                                            placeholder="Enter product name"
+                                            required
                                         />
                                     </div>
-
-                                    {/* Image Preview */}
-                                    {imagePreview && (
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                                Preview
-                                            </label>
-                                            <div className="relative w-full max-w-xs h-48 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                                                <img
-                                                    src={imagePreview}
-                                                    alt="Preview"
-                                                    className="w-full h-full object-contain"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Rating
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        max="5"
-                                        value={formData.rating}
-                                        onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        placeholder="4.5"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Reviews Count
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={formData.reviews}
-                                        onChange={(e) => setFormData({ ...formData, reviews: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        placeholder="128"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Size (Optional)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.size}
-                                        onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
-                                        placeholder="500 ml, 1 KG, etc."
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-4">
-                                    {/* Out of Stock Toggle Button */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                            Stock Status
+                                            Category <span className="text-red-500">*</span>
                                         </label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, inStock: !formData.inStock })}
-                                            className={`w-full px-6 py-3 rounded-lg font-bold text-base transition-all duration-300 ${
-                                                formData.inStock
-                                                    ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg'
-                                                    : 'bg-red-500 hover:bg-red-600 text-white shadow-lg'
-                                            }`}
-                                        >
-                                            {formData.inStock ? (
-                                                <span className="flex items-center justify-center gap-2">
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    In Stock
-                                                </span>
-                                            ) : (
-                                                <span className="flex items-center justify-center gap-2">
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                    Out of Stock
-                                                </span>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={formData.category}
+                                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                            >
+                                                {categories.map(cat => (
+                                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                                ))}
+                                            </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setCategoryFormData({ value: '', label: '' });
+                                                    setEditingCategory(null);
+                                                    setShowCategoryForm(!showCategoryForm);
+                                                    setTimeout(() => {
+                                                        if (!showCategoryForm) {
+                                                            const categoryForm = document.querySelector('[data-category-form]');
+                                                            if (categoryForm) {
+                                                                categoryForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                            }
+                                                        }
+                                                    }, 100);
+                                                }}
+                                                className="px-5 py-3 bg-[#2D5016] text-white rounded-lg font-medium hover:bg-[#4A7C2A] transition-colors whitespace-nowrap shadow-sm"
+                                                title="Manage Categories"
+                                            >
+                                                {showCategoryForm ? '✕' : '+ Category'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Price (₹) <span className="text-red-500">*</span>
+                                            {formData.price && parseFloat(formData.price) > 999 && (
+                                                <span className="ml-2 text-xs text-[#FF6F00] font-semibold">(Will be marked as Bestseller)</span>
                                             )}
-                                        </button>
-                                        <p className="mt-2 text-xs text-gray-500">
-                                            {formData.inStock 
-                                                ? 'Product is available for customers to purchase'
-                                                : 'Product will show as "Out of Stock" to customers'}
-                                        </p>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={formData.price}
+                                            onChange={(e) => {
+                                                const price = e.target.value;
+                                                setFormData({
+                                                    ...formData,
+                                                    price,
+                                                    // Auto-check bestseller if price > 999
+                                                    isBestseller: price && parseFloat(price) > 999 ? true : formData.isBestseller
+                                                });
+                                            }}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                            placeholder="299"
+                                            required
+                                        />
                                     </div>
-                                    
-                                    {/* Other Checkboxes */}
-                                    <div className="flex flex-wrap items-center gap-6">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.isNew}
-                                                onChange={(e) => setFormData({ ...formData, isNew: e.target.checked })}
-                                                className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
-                                            />
-                                            <span className="text-sm font-semibold text-gray-700">New Product</span>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Original Price (₹)
                                         </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.isBestseller}
-                                                onChange={(e) => setFormData({ ...formData, isBestseller: e.target.checked })}
-                                                className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
-                                            />
-                                            <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
-                                                <span>⭐</span>
-                                                <span>Bestseller</span>
-                                            </span>
+                                        <input
+                                            type="number"
+                                            value={formData.originalPrice}
+                                            onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                            placeholder="499"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Discount (%)
                                         </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.freeShipping}
-                                                onChange={(e) => setFormData({ ...formData, freeShipping: e.target.checked })}
-                                                className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
-                                            />
-                                            <span className="text-sm font-semibold text-gray-700">Free Shipping</span>
+                                        <input
+                                            type="number"
+                                            value={formData.discount}
+                                            onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                            placeholder="50"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Product Image <span className="text-gray-400 text-xs font-normal">(Optional - placeholder will be used if empty)</span>
                                         </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
+
+                                        {/* Image Upload Option */}
+                                        <div className="mb-3">
+                                            <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                                Upload Image File
+                                            </label>
+                                            <div className="flex items-center gap-3">
+                                                <label className="cursor-pointer inline-flex items-center px-4 py-2.5 bg-[#2D5016] text-white rounded-lg hover:bg-[#4A7C2A] transition-colors font-medium text-sm">
+                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    Choose Image
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleImageUpload}
+                                                        className="hidden"
+                                                    />
+                                                </label>
+                                                {imageFile && (
+                                                    <span className="text-sm text-gray-600">
+                                                        {imageFile.name}
+                                                    </span>
+                                                )}
+                                                {imagePreview && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleRemoveImage}
+                                                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-1.5">Max size: 5MB | Formats: JPG, PNG, GIF, WebP</p>
+                                        </div>
+
+                                        {/* OR Divider */}
+                                        <div className="relative my-4">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <div className="w-full border-t border-gray-300"></div>
+                                            </div>
+                                            <div className="relative flex justify-center text-sm">
+                                                <span className="px-2 bg-white text-gray-500">OR</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Image URL Input */}
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                                Enter Image URL
+                                            </label>
                                             <input
-                                                type="checkbox"
-                                                checked={formData.isPrime}
-                                                onChange={(e) => setFormData({ ...formData, isPrime: e.target.checked })}
-                                                className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
+                                                type="text"
+                                                value={formData.image.startsWith('data:image/') ? '' : formData.image}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, image: e.target.value });
+                                                    if (e.target.value) {
+                                                        setImagePreview(e.target.value);
+                                                    } else {
+                                                        setImagePreview(null);
+                                                    }
+                                                    setImageFile(null);
+                                                }}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                                placeholder="/images/products/product.jpg"
                                             />
-                                            <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
-                                                <span>⚡</span>
-                                                <span>Prime (Fast Delivery)</span>
-                                            </span>
+                                        </div>
+
+                                        {/* Image Preview */}
+                                        {imagePreview && (
+                                            <div className="mt-4">
+                                                <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                                    Preview
+                                                </label>
+                                                <div className="relative w-full max-w-xs h-48 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Rating
                                         </label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            max="5"
+                                            value={formData.rating}
+                                            onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                            placeholder="4.5"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Reviews Count
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={formData.reviews}
+                                            onChange={(e) => setFormData({ ...formData, reviews: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                            placeholder="128"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Size (Optional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.size}
+                                            onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white"
+                                            placeholder="500 ml, 1 KG, etc."
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-4">
+                                        {/* Out of Stock Toggle Button */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                                Stock Status
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, inStock: !formData.inStock })}
+                                                className={`w-full px-6 py-3 rounded-lg font-bold text-base transition-all duration-300 ${formData.inStock
+                                                        ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg'
+                                                        : 'bg-red-500 hover:bg-red-600 text-white shadow-lg'
+                                                    }`}
+                                            >
+                                                {formData.inStock ? (
+                                                    <span className="flex items-center justify-center gap-2">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        In Stock
+                                                    </span>
+                                                ) : (
+                                                    <span className="flex items-center justify-center gap-2">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                        Out of Stock
+                                                    </span>
+                                                )}
+                                            </button>
+                                            <p className="mt-2 text-xs text-gray-500">
+                                                {formData.inStock
+                                                    ? 'Product is available for customers to purchase'
+                                                    : 'Product will show as "Out of Stock" to customers'}
+                                            </p>
+                                        </div>
+
+                                        {/* Other Checkboxes */}
+                                        <div className="flex flex-wrap items-center gap-6">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.isNew}
+                                                    onChange={(e) => setFormData({ ...formData, isNew: e.target.checked })}
+                                                    className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
+                                                />
+                                                <span className="text-sm font-semibold text-gray-700">New Product</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.isBestseller}
+                                                    onChange={(e) => setFormData({ ...formData, isBestseller: e.target.checked })}
+                                                    className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
+                                                />
+                                                <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+                                                    <span>⭐</span>
+                                                    <span>Bestseller</span>
+                                                </span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.freeShipping}
+                                                    onChange={(e) => setFormData({ ...formData, freeShipping: e.target.checked })}
+                                                    className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
+                                                />
+                                                <span className="text-sm font-semibold text-gray-700">Free Shipping</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.isPrime}
+                                                    onChange={(e) => setFormData({ ...formData, isPrime: e.target.checked })}
+                                                    className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
+                                                />
+                                                <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+                                                    <span>⚡</span>
+                                                    <span>Prime (Fast Delivery)</span>
+                                                </span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            {/* Description, Features, Benefits Section */}
-                            <div className="grid grid-cols-1 gap-6 mt-8 pt-8 border-t border-gray-200">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Product Description
-                                        <span className="text-gray-400 text-xs font-normal ml-2">(Optional)</span>
-                                    </label>
-                                    <RichTextEditor
-                                        value={formData.description}
-                                        onChange={(value) => setFormData({ ...formData, description: value })}
-                                        placeholder="Enter product description. Format text like MS Word - no HTML needed!"
-                                        className="mb-2"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">Use the toolbar above to format your text - just like MS Word!</p>
+
+                                {/* Description, Features, Benefits Section */}
+                                <div className="grid grid-cols-1 gap-6 mt-8 pt-8 border-t border-gray-200">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Product Description
+                                            <span className="text-gray-400 text-xs font-normal ml-2">(Optional)</span>
+                                        </label>
+                                        <RichTextEditor
+                                            value={formData.description}
+                                            onChange={(value) => setFormData({ ...formData, description: value })}
+                                            placeholder="Enter product description. Format text like MS Word - no HTML needed!"
+                                            className="mb-2"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">Use the toolbar above to format your text - just like MS Word!</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Key Features
+                                            <span className="text-gray-400 text-xs font-normal ml-2">(Comma-separated)</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.features}
+                                            onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+                                            rows={3}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white resize-none"
+                                            placeholder="100% Natural and Organic, No Chemicals or Preservatives, Rich in Nutrients..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                                            Benefits
+                                            <span className="text-gray-400 text-xs font-normal ml-2">(Comma-separated)</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.benefits}
+                                            onChange={(e) => setFormData({ ...formData, benefits: e.target.value })}
+                                            rows={3}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white resize-none"
+                                            placeholder="Supports overall health and wellness, Maintains natural flavor and aroma..."
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Key Features
-                                        <span className="text-gray-400 text-xs font-normal ml-2">(Comma-separated)</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.features}
-                                        onChange={(e) => setFormData({ ...formData, features: e.target.value })}
-                                        rows={3}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white resize-none"
-                                        placeholder="100% Natural and Organic, No Chemicals or Preservatives, Rich in Nutrients..."
-                                    />
+
+                                <div className="flex gap-4 mt-8 pt-6 border-t border-gray-200">
+                                    <button
+                                        type="submit"
+                                        className="bg-[#2D5016] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#4A7C2A] transition-colors shadow-sm hover:shadow-md"
+                                    >
+                                        {editingProduct ? 'Update Product' : 'Add Product'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            resetForm();
+                                            setShowAddForm(false);
+                                        }}
+                                        className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                                        Benefits
-                                        <span className="text-gray-400 text-xs font-normal ml-2">(Comma-separated)</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.benefits}
-                                        onChange={(e) => setFormData({ ...formData, benefits: e.target.value })}
-                                        rows={3}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2D5016] focus:ring-1 focus:ring-[#2D5016] transition-colors bg-white resize-none"
-                                        placeholder="Supports overall health and wellness, Maintains natural flavor and aroma..."
-                                    />
-                                </div>
-                            </div>
-                            
-                            <div className="flex gap-4 mt-8 pt-6 border-t border-gray-200">
-                                <button
-                                    type="submit"
-                                    className="bg-[#2D5016] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#4A7C2A] transition-colors shadow-sm hover:shadow-md"
-                                >
-                                    {editingProduct ? 'Update Product' : 'Add Product'}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        resetForm();
-                                        setShowAddForm(false);
-                                    }}
-                                    className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
                             </form>
                         </div>
                     )}
@@ -1262,7 +1307,7 @@ export default function AdminProductsPage() {
                                                     {(() => {
                                                         const placeholderImage = '/images/all/products image available soon.png';
                                                         const imageSrc = (product.image && product.image.trim() !== '') ? product.image : placeholderImage;
-                                                        
+
                                                         if (imageSrc.startsWith('http')) {
                                                             return (
                                                                 <img
@@ -1326,11 +1371,10 @@ export default function AdminProductsPage() {
                                                             return updatedProducts;
                                                         });
                                                     }}
-                                                    className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
-                                                        product.inStock 
-                                                            ? 'bg-green-500 hover:bg-green-600 text-white' 
+                                                    className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${product.inStock
+                                                            ? 'bg-green-500 hover:bg-green-600 text-white'
                                                             : 'bg-red-500 hover:bg-red-600 text-white'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {product.inStock ? 'In Stock' : 'Out of Stock'}
                                                 </button>
@@ -1360,7 +1404,7 @@ export default function AdminProductsPage() {
                 </div>
             </div>
             <Suspense fallback={<div className="h-20 bg-white"></div>}><Footer /></Suspense>
-            
+
             {/* Toast Notification */}
             <Toast
                 message={toast.message}
@@ -1368,7 +1412,7 @@ export default function AdminProductsPage() {
                 isVisible={toast.isVisible}
                 onClose={() => setToast({ ...toast, isVisible: false })}
             />
-            
+
             {/* Confirmation Modal */}
             <ConfirmModal
                 isOpen={confirmModal.isOpen}

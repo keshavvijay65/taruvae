@@ -5,6 +5,23 @@ import Link from 'next/link';
 import { Product } from '@/context/CartContext';
 import ProductCard from './ProductCard';
 import { getAllProductsFromFirebase, subscribeToProducts } from '@/lib/firebaseProducts';
+import type { Product as FirebaseProduct } from '@/lib/firebaseProducts';
+
+// Helper function to convert Firebase Product to CartContext Product
+function convertToCartProduct(firebaseProduct: FirebaseProduct): Product {
+    return {
+        id: typeof firebaseProduct.id === 'string' ? parseInt(firebaseProduct.id) || 0 : firebaseProduct.id,
+        name: firebaseProduct.name || '',
+        price: firebaseProduct.price || 0,
+        image: firebaseProduct.image || '',
+        rating: firebaseProduct.rating || 4.0,
+        reviews: 0, // Default reviews
+        inStock: firebaseProduct.stock !== undefined ? firebaseProduct.stock > 0 : true,
+        category: firebaseProduct.category || '',
+        size: firebaseProduct.weight || '',
+        description: firebaseProduct.description || '',
+    };
+}
 
 // Featured products for homepage - showing best sellers
 const products: Product[] = [
@@ -122,8 +139,10 @@ export default function ProductsSection() {
                 const firebaseProducts = await getAllProductsFromFirebase();
                 
                 if (firebaseProducts && firebaseProducts.length > 0) {
+                    // Convert Firebase Products to CartContext Products
+                    const cartProducts = firebaseProducts.map(convertToCartProduct);
                     // Filter only bestseller products
-                    const bestsellerProducts = firebaseProducts.filter((product: Product) => product.isBestseller === true);
+                    const bestsellerProducts = cartProducts.filter((product: Product) => product.isBestseller === true);
                     setDisplayProducts(bestsellerProducts);
                 } else {
                     // If no products in Firebase, use default bestsellers
@@ -157,8 +176,10 @@ export default function ProductsSection() {
         // Subscribe to real-time updates from Firebase
         const unsubscribe = subscribeToProducts((updatedProducts) => {
             if (updatedProducts && updatedProducts.length > 0) {
+                // Convert Firebase Products to CartContext Products
+                const cartProducts = updatedProducts.map(convertToCartProduct);
                 // Filter only bestseller products
-                const bestsellerProducts = updatedProducts.filter((product: Product) => product.isBestseller === true);
+                const bestsellerProducts = cartProducts.filter((product: Product) => product.isBestseller === true);
                 setDisplayProducts(bestsellerProducts);
             }
         });

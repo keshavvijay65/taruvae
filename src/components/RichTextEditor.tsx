@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import InputModal from './InputModal';
+import ConfirmModal from './ConfirmModal';
 
 interface RichTextEditorProps {
     value: string;
@@ -16,6 +18,8 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
     const [showColorPicker, setShowColorPicker] = useState<'text' | 'bg' | null>(null);
     const [showFontSize, setShowFontSize] = useState(false);
     const [showFontFamily, setShowFontFamily] = useState(false);
+    const [inputModal, setInputModal] = useState<{ isOpen: boolean; title: string; message: string; placeholder: string; defaultValue: string; type: 'text' | 'number'; onConfirm: (value: string) => void } | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void } | null>(null);
 
     useEffect(() => {
         setIsMounted(true);
@@ -39,20 +43,39 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
     };
 
     const insertTable = () => {
-        const rows = prompt('Number of rows:', '3');
-        const cols = prompt('Number of columns:', '3');
-        if (rows && cols) {
-            let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">';
-            for (let i = 0; i < parseInt(rows); i++) {
-                tableHTML += '<tr>';
-                for (let j = 0; j < parseInt(cols); j++) {
-                    tableHTML += '<td style="padding: 8px; border: 1px solid #ddd;">&nbsp;</td>';
-                }
-                tableHTML += '</tr>';
-            }
-            tableHTML += '</table>';
-            execCommand('insertHTML', tableHTML);
-        }
+        setInputModal({
+            isOpen: true,
+            title: 'Table Rows',
+            message: 'Enter number of rows:',
+            placeholder: '3',
+            defaultValue: '3',
+            type: 'number',
+            onConfirm: (rows) => {
+                setInputModal({
+                    isOpen: true,
+                    title: 'Table Columns',
+                    message: 'Enter number of columns:',
+                    placeholder: '3',
+                    defaultValue: '3',
+                    type: 'number',
+                    onConfirm: (cols) => {
+                        if (rows && cols) {
+                            let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">';
+                            for (let i = 0; i < parseInt(rows); i++) {
+                                tableHTML += '<tr>';
+                                for (let j = 0; j < parseInt(cols); j++) {
+                                    tableHTML += '<td style="padding: 8px; border: 1px solid #ddd;">&nbsp;</td>';
+                                }
+                                tableHTML += '</tr>';
+                            }
+                            tableHTML += '</table>';
+                            execCommand('insertHTML', tableHTML);
+                        }
+                        setInputModal(null);
+                    },
+                });
+            },
+        });
     };
 
     const insertImage = () => {
@@ -74,55 +97,72 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
     };
 
     const insertVideo = () => {
-        const choice = confirm('Click OK to upload video file, or Cancel to enter video URL');
-        if (choice) {
-            // Upload video file
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'video/*';
-            input.onchange = (e: any) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event: any) => {
-                        const base64 = event.target.result;
-                        const videoHTML = `<video controls style="max-width: 100%; height: auto; margin: 10px 0;"><source src="${base64}" type="${file.type}"></video>`;
+        // First show modal to choose between upload and URL
+        setConfirmModal({
+            isOpen: true,
+            title: 'Video Insert',
+            message: 'Click "Upload" to upload a video file, or "Cancel" and use the URL button to enter a video URL.',
+            onConfirm: () => {
+                setConfirmModal(null);
+                // Upload video file
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'video/*';
+                input.onchange = (e: any) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event: any) => {
+                            const base64 = event.target.result;
+                            const videoHTML = `<video controls style="max-width: 100%; height: auto; margin: 10px 0;"><source src="${base64}" type="${file.type}"></video>`;
+                            execCommand('insertHTML', videoHTML);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+            },
+        });
+    };
+
+    const insertVideoUrl = () => {
+        setInputModal({
+            isOpen: true,
+            title: 'Video URL',
+            message: 'Enter video URL (YouTube, Vimeo, or direct video link):',
+            placeholder: 'https://youtube.com/watch?v=...',
+            defaultValue: '',
+            type: 'text',
+            onConfirm: (url) => {
+                if (url) {
+                    // Check if it's a YouTube URL
+                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        let videoId = '';
+                        if (url.includes('youtube.com/watch?v=')) {
+                            videoId = url.split('v=')[1].split('&')[0];
+                        } else if (url.includes('youtu.be/')) {
+                            videoId = url.split('youtu.be/')[1].split('?')[0];
+                        }
+                        if (videoId) {
+                            const embedHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 100%; margin: 10px 0;"></iframe>`;
+                            execCommand('insertHTML', embedHTML);
+                        }
+                    } else if (url.includes('vimeo.com')) {
+                        // Extract Vimeo video ID
+                        const videoId = url.split('vimeo.com/')[1]?.split('?')[0];
+                        if (videoId) {
+                            const embedHTML = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="max-width: 100%; margin: 10px 0;"></iframe>`;
+                            execCommand('insertHTML', embedHTML);
+                        }
+                    } else {
+                        // Direct video URL
+                        const videoHTML = `<video controls style="max-width: 100%; height: auto; margin: 10px 0;"><source src="${url}"></video>`;
                         execCommand('insertHTML', videoHTML);
-                    };
-                    reader.readAsDataURL(file);
+                    }
                 }
-            };
-            input.click();
-        } else {
-            // Enter video URL
-            const url = prompt('Enter video URL (YouTube, Vimeo, or direct video link):');
-            if (url) {
-                // Check if it's a YouTube URL
-                if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                    let videoId = '';
-                    if (url.includes('youtube.com/watch?v=')) {
-                        videoId = url.split('v=')[1].split('&')[0];
-                    } else if (url.includes('youtu.be/')) {
-                        videoId = url.split('youtu.be/')[1].split('?')[0];
-                    }
-                    if (videoId) {
-                        const embedHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 100%; margin: 10px 0;"></iframe>`;
-                        execCommand('insertHTML', embedHTML);
-                    }
-                } else if (url.includes('vimeo.com')) {
-                    // Extract Vimeo video ID
-                    const videoId = url.split('vimeo.com/')[1]?.split('?')[0];
-                    if (videoId) {
-                        const embedHTML = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="max-width: 100%; margin: 10px 0;"></iframe>`;
-                        execCommand('insertHTML', embedHTML);
-                    }
-                } else {
-                    // Direct video URL
-                    const videoHTML = `<video controls style="max-width: 100%; height: auto; margin: 10px 0;"><source src="${url}"></video>`;
-                    execCommand('insertHTML', videoHTML);
-                }
-            }
-        }
+                setInputModal(null);
+            },
+        });
     };
 
     const setColor = (color: string, type: 'foreColor' | 'backColor') => {
@@ -477,7 +517,22 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
                 <div className="divider"></div>
 
                 {/* Special Elements */}
-                <button type="button" onClick={() => execCommand('createLink', prompt('Enter URL:'))} title="Insert Link">🔗</button>
+                <button type="button" onClick={() => {
+                    setInputModal({
+                        isOpen: true,
+                        title: 'Insert Link',
+                        message: 'Enter URL:',
+                        placeholder: 'https://example.com',
+                        defaultValue: '',
+                        type: 'text',
+                        onConfirm: (url) => {
+                            if (url) {
+                                execCommand('createLink', url);
+                            }
+                            setInputModal(null);
+                        },
+                    });
+                }} title="Insert Link">🔗</button>
                 <button type="button" onClick={insertImage} title="Upload Image">🖼️</button>
                 <button type="button" onClick={insertVideo} title="Upload Video">🎥</button>
                 <button type="button" onClick={insertTable} title="Insert Table">⊞</button>
@@ -500,6 +555,48 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
                 dangerouslySetInnerHTML={{ __html: editorContent }}
                 suppressContentEditableWarning
             />
+
+            {/* Input Modal */}
+            {inputModal && (
+                <InputModal
+                    isOpen={inputModal.isOpen}
+                    title={inputModal.title}
+                    message={inputModal.message}
+                    placeholder={inputModal.placeholder}
+                    defaultValue={inputModal.defaultValue}
+                    type={inputModal.type}
+                    onConfirm={(value) => {
+                        inputModal.onConfirm(value);
+                        setInputModal(null);
+                    }}
+                    onCancel={() => setInputModal(null)}
+                />
+            )}
+
+            {/* Confirm Modal */}
+            {confirmModal && (
+                <ConfirmModal
+                    isOpen={confirmModal.isOpen}
+                    title={confirmModal.title}
+                    message={confirmModal.message}
+                    onConfirm={() => {
+                        confirmModal.onConfirm();
+                        setConfirmModal(null);
+                    }}
+                    onCancel={() => {
+                        // If canceling video upload, show URL input
+                        if (confirmModal.title === 'Video Insert') {
+                            setConfirmModal(null);
+                            insertVideoUrl();
+                        } else {
+                            setConfirmModal(null);
+                        }
+                    }}
+                    confirmText="Upload"
+                    cancelText="Enter URL"
+                    type="info"
+                />
+            )}
         </div>
     );
 }
