@@ -49,7 +49,7 @@ export default function CheckoutPage() {
 
     // Merchant UPI ID - Replace with your actual merchant UPI ID
     // IMPORTANT: Change this to your actual business UPI ID where you want to receive payments
-    const MERCHANT_UPI_ID = 'keshavvijay1723-1@okicici'; // ⚠️ Change this to your actual merchant UPI ID (e.g., yourbusiness@paytm, yourbusiness@ybl, etc.)
+    const MERCHANT_UPI_ID = '8890008068@ybl'; // ⚠️ Change this to your actual merchant UPI ID (e.g., yourbusiness@paytm, yourbusiness@ybl, etc.)
     const MERCHANT_NAME = 'Taruvaé Naturals';
 
     // Calculate total amount
