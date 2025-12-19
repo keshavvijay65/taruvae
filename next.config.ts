@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
 
   eslint: {
-    ignoreDuringBuilds: true, // 🔥 BUILD BLOCK FIX
+    ignoreDuringBuilds: true,
   },
 };
 
