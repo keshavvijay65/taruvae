@@ -416,7 +416,6 @@ function AllProductsContent() {
     // Safety check: Ensure products are never empty (fallback to defaults)
     useEffect(() => {
         if (products.length === 0 && !isInitialLoad) {
-            console.warn('Products array is empty, resetting to defaults');
             setProducts(getAllDefaultProducts());
         }
     }, [products.length, isInitialLoad]);
@@ -569,14 +568,6 @@ function AllProductsContent() {
     const filteredProducts = useMemo(() => {
         let filtered = products;
 
-        // Debug logging
-        console.log('Filtering products:', {
-            totalProducts: products.length,
-            activeFilter,
-            searchKeyword,
-            categoriesCount: categories.length
-        });
-
         // Quick filter logic
         if (activeFilter === 'new') {
             filtered = filtered.filter(p => p.isNew);
@@ -623,7 +614,6 @@ function AllProductsContent() {
                 break;
         }
 
-        console.log('Filtered products count:', filtered.length);
         return filtered;
     }, [activeFilter, sortBy, searchKeyword, products, categories]);
 
