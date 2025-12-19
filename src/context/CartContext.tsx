@@ -18,7 +18,10 @@ export interface Product {
     isNew?: boolean;
     isBestseller?: boolean;
     isPrime?: boolean; // Fast/Priority Delivery
+<<<<<<< HEAD
     showOnHome?: boolean; // Show on Homepage
+=======
+>>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     description?: string; // Product description
     features?: string[]; // Key features array
     benefits?: string[]; // Benefits array

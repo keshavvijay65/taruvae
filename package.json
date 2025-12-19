@@ -27,7 +27,15 @@
     "quill": "^2.0.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+<<<<<<< HEAD
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
   }
 }
+=======
+    "react-quill": "^2.0.0",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3"
+  }
+}
+>>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3

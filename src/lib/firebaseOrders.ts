@@ -496,12 +496,19 @@ export async function saveUserProfileToFirebase(userProfile: UserProfile): Promi
         }
 
         const userRef = ref(database, `users/${userProfile.id}`);
+<<<<<<< HEAD
         // Remove undefined values before saving (Firebase doesn't allow undefined)
         const cleanedProfile = removeUndefinedValues({
             ...userProfile,
             lastUpdated: new Date().toISOString(),
         });
         await set(userRef, cleanedProfile);
+=======
+        await set(userRef, {
+            ...userProfile,
+            lastUpdated: new Date().toISOString(),
+        });
+>>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
         
         console.log(`User profile saved to Firebase: ${userProfile.email}`);
         return { success: true, message: 'User profile saved to Firebase successfully' };
