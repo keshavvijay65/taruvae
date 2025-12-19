@@ -36,10 +36,7 @@ const products: Product[] = [
         category: 'oil',
         size: '1000 ml',
         isNew: true,
-<<<<<<< HEAD
         isBestseller: true,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     },
     {
         id: 2,
@@ -65,10 +62,7 @@ const products: Product[] = [
         category: 'oil',
         size: '1000 ml',
         isNew: true,
-<<<<<<< HEAD
         isBestseller: true,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     },
     {
         id: 4,
@@ -81,10 +75,7 @@ const products: Product[] = [
         category: 'oil',
         size: '1000 ml',
         isNew: true,
-<<<<<<< HEAD
         isBestseller: true,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     },
     {
         id: 5,
@@ -96,10 +87,7 @@ const products: Product[] = [
         inStock: true,
         category: 'oil',
         size: '1000 ml',
-<<<<<<< HEAD
         isBestseller: true,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     },
     {
         id: 6,
@@ -111,10 +99,7 @@ const products: Product[] = [
         inStock: true,
         category: 'oil',
         size: '1000 ml',
-<<<<<<< HEAD
         isBestseller: true,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     },
     {
         id: 7,
@@ -126,10 +111,7 @@ const products: Product[] = [
         inStock: true,
         category: 'oil',
         size: '1000 ml',
-<<<<<<< HEAD
         isBestseller: true,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     },
     {
         id: 8,
@@ -141,10 +123,7 @@ const products: Product[] = [
         inStock: true,
         category: 'oil',
         size: '1000 ml',
-<<<<<<< HEAD
         isBestseller: true,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     },
 ];
 
@@ -156,19 +135,12 @@ const categories = [
 ];
 
 export default function ProductsSection() {
-<<<<<<< HEAD
     // Initialize with bestsellers from default products to show multiple products immediately
     const defaultBestsellers = products.filter(product => product.isBestseller === true);
     const [displayProducts, setDisplayProducts] = useState<Product[]>(defaultBestsellers.length > 0 ? defaultBestsellers : products.slice(0, 8));
     const [activeCategory, setActiveCategory] = useState<string>('all');
 
     // Load products from Firebase (with real-time updates) - Only products marked "Show on Home"
-=======
-    const [displayProducts, setDisplayProducts] = useState<Product[]>(products);
-    const [activeCategory, setActiveCategory] = useState<string>('all');
-
-    // Load products from Firebase (with real-time updates) - Only Bestsellers
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     useEffect(() => {
         const loadProducts = async () => {
             try {
@@ -178,7 +150,6 @@ export default function ProductsSection() {
                 if (firebaseProducts && firebaseProducts.length > 0) {
                     // Convert Firebase Products to CartContext Products
                     const cartProducts = firebaseProducts.map(convertToCartProduct);
-<<<<<<< HEAD
                     // Filter only products marked to show on home
                     const homeProducts = cartProducts.filter((product: Product) => product.showOnHome === true);
                     if (homeProducts.length > 0) {
@@ -188,11 +159,6 @@ export default function ProductsSection() {
                         const bestsellerProducts = cartProducts.filter((product: Product) => product.isBestseller === true);
                         setDisplayProducts(bestsellerProducts.length > 0 ? bestsellerProducts : products.filter(product => product.isBestseller === true));
                     }
-=======
-                    // Filter only bestseller products
-                    const bestsellerProducts = cartProducts.filter((product: Product) => product.isBestseller === true);
-                    setDisplayProducts(bestsellerProducts);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                 } else {
                     // If no products in Firebase, use default bestsellers
                     const bestsellerProducts = products.filter(product => product.isBestseller === true);
@@ -206,7 +172,6 @@ export default function ProductsSection() {
                     try {
                         const parsed = JSON.parse(adminProducts);
                         if (parsed && Array.isArray(parsed)) {
-<<<<<<< HEAD
                             // Filter by showOnHome first, then fallback to bestsellers
                             const homeProducts = parsed.filter((product: Product) => product.showOnHome === true);
                             if (homeProducts.length > 0) {
@@ -215,10 +180,6 @@ export default function ProductsSection() {
                                 const bestsellerProducts = parsed.filter((product: Product) => product.isBestseller === true);
                                 setDisplayProducts(bestsellerProducts.length > 0 ? bestsellerProducts : products.filter(product => product.isBestseller === true));
                             }
-=======
-                            const bestsellerProducts = parsed.filter((product: Product) => product.isBestseller === true);
-                            setDisplayProducts(bestsellerProducts);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                             return;
                         }
                     } catch (parseError) {
@@ -238,7 +199,6 @@ export default function ProductsSection() {
             if (updatedProducts && updatedProducts.length > 0) {
                 // Convert Firebase Products to CartContext Products
                 const cartProducts = updatedProducts.map(convertToCartProduct);
-<<<<<<< HEAD
                 // Filter products marked to show on home
                 const homeProducts = cartProducts.filter((product: Product) => product.showOnHome === true);
                 if (homeProducts.length > 0) {
@@ -256,12 +216,6 @@ export default function ProductsSection() {
                 }
             }
             // Don't override with empty array - keep existing products
-=======
-                // Filter only bestseller products
-                const bestsellerProducts = cartProducts.filter((product: Product) => product.isBestseller === true);
-                setDisplayProducts(bestsellerProducts);
-            }
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
         });
 
         return () => {
@@ -271,7 +225,6 @@ export default function ProductsSection() {
         };
     }, []);
 
-<<<<<<< HEAD
     // Filter products by category - Products marked "Show on Home"
     const filteredProducts = useMemo(() => {
         // Products are already filtered to showOnHome in displayProducts
@@ -280,17 +233,6 @@ export default function ProductsSection() {
             return displayProducts;
         }
         return displayProducts.filter(product => product.category === activeCategory);
-=======
-    // Filter products by category - Only Bestsellers
-    const filteredProducts = useMemo(() => {
-        // First filter only bestsellers
-        const bestsellerProducts = displayProducts.filter(product => product.isBestseller === true);
-        
-        if (activeCategory === 'all') {
-            return bestsellerProducts;
-        }
-        return bestsellerProducts.filter(product => product.category === activeCategory);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     }, [displayProducts, activeCategory]);
 
     return (

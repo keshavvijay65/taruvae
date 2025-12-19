@@ -201,10 +201,7 @@ export default function AdminProductsPage() {
         isBestseller: false,
         freeShipping: false,
         isPrime: false,
-<<<<<<< HEAD
         showOnHome: false,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
         description: '',
         features: '',
         benefits: '',
@@ -421,10 +418,7 @@ export default function AdminProductsPage() {
             // Auto-mark as bestseller if price > 999, otherwise use formData value
             isBestseller: price > 999 ? true : formData.isBestseller,
             isPrime: formData.isPrime,
-<<<<<<< HEAD
             showOnHome: formData.showOnHome,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             description: formData.description.trim() || undefined,
             features: features && features.length > 0 ? features : undefined,
             benefits: benefits && benefits.length > 0 ? benefits : undefined,
@@ -460,10 +454,7 @@ export default function AdminProductsPage() {
             isBestseller: product.isBestseller || false,
             freeShipping: false,
             isPrime: product.isPrime || false,
-<<<<<<< HEAD
             showOnHome: product.showOnHome || false,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             description: product.description || '',
             features: product.features ? product.features.join(', ') : '',
             benefits: product.benefits ? product.benefits.join(', ') : '',
@@ -521,10 +512,7 @@ export default function AdminProductsPage() {
             isNew: formData.isNew,
             // Auto-mark as bestseller if price > 999, otherwise use formData value
             isBestseller: price > 999 ? true : formData.isBestseller,
-<<<<<<< HEAD
             showOnHome: formData.showOnHome,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             description: formData.description.trim() || undefined,
             features: features && features.length > 0 ? features : undefined,
             benefits: benefits && benefits.length > 0 ? benefits : undefined,
@@ -618,10 +606,7 @@ export default function AdminProductsPage() {
             isBestseller: false,
             freeShipping: false,
             isPrime: false,
-<<<<<<< HEAD
             showOnHome: false,
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             description: '',
             features: '',
             benefits: '',
@@ -1118,7 +1103,6 @@ export default function AdminProductsPage() {
                                             <label className="flex items-center gap-2 cursor-pointer">
                                                 <input
                                                     type="checkbox"
-<<<<<<< HEAD
                                                     checked={formData.showOnHome}
                                                     onChange={(e) => setFormData({ ...formData, showOnHome: e.target.checked })}
                                                     className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"
@@ -1131,8 +1115,6 @@ export default function AdminProductsPage() {
                                             <label className="flex items-center gap-2 cursor-pointer">
                                                 <input
                                                     type="checkbox"
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                                                     checked={formData.freeShipping}
                                                     onChange={(e) => setFormData({ ...formData, freeShipping: e.target.checked })}
                                                     className="w-5 h-5 text-[#2D5016] focus:ring-[#2D5016]"

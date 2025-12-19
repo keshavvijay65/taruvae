@@ -24,11 +24,6 @@ interface UserProfileContextType {
     deleteAddress: (id: string) => Promise<{ success: boolean; message: string }>;
     setDefaultAddress: (id: string) => Promise<{ success: boolean; message: string }>;
     getDefaultAddress: () => Address | null;
-<<<<<<< HEAD
-=======
-    verifyPhone: (phone: string) => Promise<{ success: boolean; message: string; otp?: string }>;
-    verifyEmail: (email: string) => Promise<{ success: boolean; message: string; otp?: string }>;
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     loading: boolean;
 }
 
@@ -198,58 +193,6 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         return addresses.find(addr => addr.isDefault) || addresses[0] || null;
     };
 
-<<<<<<< HEAD
-=======
-    // Simple OTP verification (for demo - in production, use SMS/Email service)
-    const verifyPhone = async (phone: string): Promise<{ success: boolean; message: string; otp?: string }> => {
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        // Store OTP in localStorage with expiration (5 minutes)
-        const otpData = {
-            phone,
-            otp,
-            expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-        };
-        
-        const otps = JSON.parse(localStorage.getItem('taruvae-otps') || '[]');
-        otps.push(otpData);
-        localStorage.setItem('taruvae-otps', JSON.stringify(otps));
-
-        // In production, send OTP via SMS service
-        // For now, we'll return it (in production, don't return OTP)
-        return {
-            success: true,
-            message: `OTP sent to ${phone}. For demo: OTP is ${otp}`,
-            otp, // Remove this in production
-        };
-    };
-
-    const verifyEmail = async (email: string): Promise<{ success: boolean; message: string; otp?: string }> => {
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        // Store OTP in localStorage with expiration (5 minutes)
-        const otpData = {
-            email,
-            otp,
-            expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-        };
-        
-        const otps = JSON.parse(localStorage.getItem('taruvae-otps') || '[]');
-        otps.push(otpData);
-        localStorage.setItem('taruvae-otps', JSON.stringify(otps));
-
-        // In production, send OTP via Email service
-        // For now, we'll return it (in production, don't return OTP)
-        return {
-            success: true,
-            message: `OTP sent to ${email}. For demo: OTP is ${otp}`,
-            otp, // Remove this in production
-        };
-    };
-
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     return (
         <UserProfileContext.Provider
             value={{
@@ -259,11 +202,6 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
                 deleteAddress,
                 setDefaultAddress,
                 getDefaultAddress,
-<<<<<<< HEAD
-=======
-                verifyPhone,
-                verifyEmail,
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                 loading,
             }}
         >

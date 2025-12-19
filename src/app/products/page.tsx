@@ -247,16 +247,11 @@ const quickFilterConfig: QuickFilter[] = [
 
 function AllProductsContent() {
     const { addToCart, cart } = useCart();
-<<<<<<< HEAD
     // Initialize with default products so they show immediately
     const defaultProducts = getAllDefaultProducts();
     const [products, setProducts] = useState<Product[]>(defaultProducts);
     const [categories, setCategories] = useState<Category[]>([]);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-=======
-    const [products, setProducts] = useState<Product[]>([]); // Start with empty array - only show admin products
-    const [categories, setCategories] = useState<Category[]>([]);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
 
     // Load products from Firebase (with real-time updates)
     useEffect(() => {
@@ -297,17 +292,10 @@ function AllProductsContent() {
                         return product;
                     });
                     setProducts(fixedProducts);
-<<<<<<< HEAD
                     setIsInitialLoad(false);
                 } else {
                     // If no products in Firebase, keep defaults (already set)
                     setIsInitialLoad(false);
-=======
-                } else {
-                    // If no products in Firebase, use defaults
-                    const defaultProducts = getAllDefaultProducts();
-                    setProducts(defaultProducts);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
@@ -316,11 +304,7 @@ function AllProductsContent() {
                 if (adminProducts !== null) {
                     try {
                         const parsed = JSON.parse(adminProducts);
-<<<<<<< HEAD
                         if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-=======
-                        if (parsed && Array.isArray(parsed)) {
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                             // Fix old image paths
                             const fixedProducts = parsed.map((product: Product) => {
                                 if (product.image === '/images/products/ghee.jpg') {
@@ -348,24 +332,15 @@ function AllProductsContent() {
                                 return product;
                             });
                             setProducts(fixedProducts);
-<<<<<<< HEAD
                             setIsInitialLoad(false);
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                             return;
                         }
                     } catch (parseError) {
                         console.error('Error parsing admin products:', parseError);
                     }
                 }
-<<<<<<< HEAD
                 // Keep default products (already set in initial state)
                 setIsInitialLoad(false);
-=======
-                // Final fallback to defaults
-                const defaultProducts = getAllDefaultProducts();
-                setProducts(defaultProducts);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             }
         };
 
@@ -373,10 +348,7 @@ function AllProductsContent() {
 
         // Subscribe to real-time updates from Firebase
         const unsubscribe = subscribeToProducts((updatedProducts) => {
-<<<<<<< HEAD
             // Only update if we have products, or if initial load is complete and we want to clear
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             if (updatedProducts && updatedProducts.length > 0) {
                 // Convert Firebase Products to CartContext Products
                 const cartProducts = updatedProducts.map(convertToCartProduct);
@@ -408,10 +380,7 @@ function AllProductsContent() {
                 });
                 setProducts(fixedProducts);
             }
-<<<<<<< HEAD
             // Don't override with empty array - keep existing products
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
         });
 
         return () => {
@@ -444,7 +413,6 @@ function AllProductsContent() {
         };
     }, []);
 
-<<<<<<< HEAD
     // Safety check: Ensure products are never empty (fallback to defaults)
     useEffect(() => {
         if (products.length === 0 && !isInitialLoad) {
@@ -452,8 +420,6 @@ function AllProductsContent() {
         }
     }, [products.length, isInitialLoad]);
 
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
     const [activeFilter, setActiveFilter] = useState<string>('all');
     const [sortBy, setSortBy] = useState<string>('default');
     const [searchKeyword, setSearchKeyword] = useState('');
@@ -588,23 +554,15 @@ function AllProductsContent() {
         const filterParam = searchParams.get('filter');
         if (filterParam && dynamicFilterMeta[filterParam]) {
             setActiveFilter(filterParam);
-<<<<<<< HEAD
         } else {
             // Default to 'all' if no filter param or invalid filter
-=======
-        } else if (!filterParam) {
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             setActiveFilter('all');
         }
 
         const searchParam = searchParams.get('search') || '';
         setSearchKeyword(searchParam);
         setInlineSearchTerm(searchParam);
-<<<<<<< HEAD
     }, [searchParams, dynamicFilterMeta]);
-=======
-    }, [searchParams]);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
 
     // Filter and sort products
     const filteredProducts = useMemo(() => {
@@ -620,23 +578,16 @@ function AllProductsContent() {
         } else if (activeFilter === 'under-999') {
             filtered = filtered.filter(p => p.price <= 999);
         } else if (activeFilter === 'all') {
-<<<<<<< HEAD
             // Show all products - no filtering needed
             filtered = products;
-=======
-            // Show all products
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
         } else {
             // Dynamic category filter - check if it's a category
             const categoryValues = categories.map(cat => cat.value);
             if (categoryValues.includes(activeFilter)) {
                 filtered = filtered.filter(p => p.category === activeFilter);
-<<<<<<< HEAD
             } else {
                 // If filter doesn't match any category, show all products
                 filtered = products;
-=======
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             }
         }
 
@@ -654,11 +605,7 @@ function AllProductsContent() {
                 filtered = [...filtered].sort((a, b) => b.price - a.price);
                 break;
             case 'rating':
-<<<<<<< HEAD
                 filtered = [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-=======
-                filtered = [...filtered].sort((a, b) => b.rating - a.rating);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
                 break;
             case 'name':
                 filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
@@ -668,11 +615,7 @@ function AllProductsContent() {
         }
 
         return filtered;
-<<<<<<< HEAD
     }, [activeFilter, sortBy, searchKeyword, products, categories]);
-=======
-    }, [activeFilter, sortBy, searchKeyword, products]);
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
 
     const handleQuickFilterClick = (filterId: string) => {
         setActiveFilter(filterId);

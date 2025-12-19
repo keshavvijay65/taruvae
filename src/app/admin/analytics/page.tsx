@@ -23,14 +23,10 @@ export default function AdminAnalyticsPage() {
         const auth = localStorage.getItem('admin-authenticated');
         if (auth === 'true') {
             setIsAuthenticated(true);
-<<<<<<< HEAD
             // Load orders and set loading to false after completion
             loadOrders().finally(() => {
                 setLoading(false);
             });
-=======
-            loadOrders();
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             // Subscribe to real-time updates
             try {
                 const unsubscribe = subscribeToOrders((firebaseOrders) => {
@@ -47,7 +43,6 @@ export default function AdminAnalyticsPage() {
             }
         } else {
             router.push('/admin/login');
-<<<<<<< HEAD
             setLoading(false);
         }
     }, [router]);
@@ -73,19 +68,6 @@ export default function AdminAnalyticsPage() {
             setOrders(firebaseOrders || []);
         } catch (error) {
             clearTimeout(timeoutId);
-=======
-        }
-        setLoading(false);
-    }, [router]);
-
-    const loadOrders = async () => {
-        try {
-            // Load from Firebase first
-            const firebaseOrders = await getAllOrdersFromFirebase();
-            console.log('Loaded orders from Firebase:', firebaseOrders.length);
-            setOrders(firebaseOrders || []);
-        } catch (error) {
->>>>>>> 5abc3959ee9218e068f1213a5e8b009a02a962d3
             console.error('Error loading orders from Firebase:', error);
             // Fallback to localStorage
             try {
