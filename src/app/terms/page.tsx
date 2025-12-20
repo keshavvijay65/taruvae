@@ -13,9 +13,9 @@ export default function TermsPage() {
             <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl pt-20 sm:pt-24 pb-12 md:pb-16">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
                     <div className="mb-6">
-                        <div className="inline-block bg-blue-50 border border-blue-200 rounded px-3 py-1 text-xs text-blue-700 mb-4">
+                        {/* <div className="inline-block bg-blue-50 border border-blue-200 rounded px-3 py-1 text-xs text-blue-700 mb-4">
                             Created with Razorpay
-                        </div>
+                        </div> */}
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Terms & Conditions</h1>
                         <p className="text-gray-600 text-sm">Last updated on Nov 26 2025</p>
                     </div>
