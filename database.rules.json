@@ -1,0 +1,42 @@
+{
+    "rules": {
+        ".read": false,
+        ".write": false,
+        "products": {
+            ".read": true,
+            ".write": true
+        },
+        "categories": {
+            ".read": true,
+            ".write": true
+        },
+        "blogs": {
+            ".read": true,
+            ".write": true
+        },
+        "coupons": {
+            ".read": true,
+            ".write": true
+        },
+        "users": {
+            ".read": true,
+            ".write": true
+        },
+        "orders": {
+            ".read": true,
+            ".write": true,
+            ".indexOn": [
+                "userId",
+                "customer/email"
+            ]
+        },
+        "carts": {
+            ".read": true,
+            ".write": true
+        },
+        "reviews": {
+            ".read": true,
+            ".write": true
+        }
+    }
+}

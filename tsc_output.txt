@@ -1,0 +1,10 @@
+﻿src/app/admin/products/page.tsx(1314,9): error TS2657: JSX expressions must have one parent element.
+src/app/admin/products/page.tsx(2327,11): error TS17002: Expected corresponding JSX closing tag for 'AdminWrapper'.
+src/app/admin/products/page.tsx(2336,5): error TS1005: ')' expected.
+src/app/admin/products/page.tsx(2559,9): error TS1128: Declaration or statement expected.
+src/app/admin/products/page.tsx(2560,5): error TS1109: Expression expected.
+src/app/products/[id]/ProductDetailClient.tsx(446,13): error TS17014: JSX fragment has no corresponding closing tag.
+src/app/products/[id]/ProductDetailClient.tsx(982,15): error TS1003: Identifier expected.
+src/app/products/[id]/ProductDetailClient.tsx(984,5): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/products/[id]/ProductDetailClient.tsx(985,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/products/[id]/ProductDetailClient.tsx(989,1): error TS1005: '</' expected.
